@@ -1,0 +1,13 @@
+/.idea
+/.vscode
+/node_modules
+/package-lock.json
+/pnpm-lock.yaml
+/tests/fixtures/*/build
+/tests/fixtures/*/.stylelintcache
+
+# ignore build files
+*.d.ts
+*.js
+!/src/@types/*.d.ts
+!/tests/**/*.js

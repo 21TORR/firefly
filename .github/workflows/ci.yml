@@ -1,0 +1,22 @@
+name: CI
+
+on: [ push ]
+
+jobs:
+    build-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout Code
+                uses: actions/checkout@v2
+
+            -   uses: actions/setup-node@v2-beta
+                with:
+                    node-version: '14'
+
+            -   run: npm install
+
+            -   run: npm test
+
+            -   name: Prettify package.json
+                run: npx prettier-package-json --use-tabs --list-different

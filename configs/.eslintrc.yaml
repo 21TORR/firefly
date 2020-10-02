@@ -1,0 +1,78 @@
+parser: babel-eslint
+
+parserOptions:
+    ecmaVersion: 2020
+    sourceType: module
+    ecmaFeatures:
+        jsx: true
+        experimentalObjectRestSpread: true
+    project: './tsconfig.json'
+
+settings:
+    jsdoc:
+        mode: typescript
+    react:
+        createClass: "Component"
+        pragma: "h"
+        version: "16.3"
+
+env:
+    browser: true
+    commonjs: true
+    es6: true
+    jquery: true
+
+plugins:
+    - jsdoc
+    - react
+    - react-hooks
+
+globals:
+    App: true
+    Foundation: true
+    require: false
+
+extends:
+    - 'eslint:recommended'
+    - 'plugin:react/recommended'
+    - 'plugin:react-hooks/recommended'
+    - 'plugin:jsdoc/recommended'
+
+rules:
+    indent:
+        - error
+        - tab
+    linebreak-style:
+        - error
+        - unix
+    semi:
+        - error
+        - always
+
+    # JSDoc
+    'jsdoc/check-alignment': warn
+    'jsdoc/check-param-names': error
+    'jsdoc/check-syntax': warn
+    'jsdoc/check-tag-names': warn
+    'jsdoc/check-types': warn
+    'jsdoc/newline-after-description': warn
+    'jsdoc/no-types': warn
+    'jsdoc/require-jsdoc':
+        - warn
+        -   publicOnly: true
+            require:
+                ArrowFunctionExpression: false
+                ClassDeclaration: false
+                ClassExpression: false
+                FunctionDeclaration: true
+                FunctionExpression: false
+                MethodDefinition: true
+            exemptEmptyFunctions: true
+    'jsdoc/require-param-name': warn
+    'jsdoc/require-param-type': off
+    'jsdoc/require-param-description': off
+    'jsdoc/require-param': warn
+    'jsdoc/require-returns-check': warn
+    'jsdoc/require-returns-type': warn
+    'jsdoc/require-returns': warn
+    'jsdoc/valid-types': warn
