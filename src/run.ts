@@ -38,7 +38,7 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 			abortWithError("Invalid return value. Must be instance of `Firefly`.");
 		}
 
-		const scss = new ScssBuilder(logger, config, instance.generateScssBuildConfig(config));
+		const scss = new ScssBuilder(config, instance.generateScssBuildConfig(config));
 		const js = new JsBuilder(config, instance.generateJsBuildConfig(config));
 
 		Promise.all([scss.run(), js.run()])

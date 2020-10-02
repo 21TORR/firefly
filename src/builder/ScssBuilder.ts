@@ -1,8 +1,6 @@
 import {FireflyTypes} from '../@types/firefly';
-import sass, {Result} from "node-sass";
 import path from 'path';
 import {ScssCompiler} from './scss/ScssCompiler';
-import {Logger} from '../lib/Logger';
 
 export interface ScssBuildConfig
 {
@@ -18,7 +16,6 @@ export class ScssBuilder
     /**
      */
     public constructor (
-        private logger: Logger,
         private runConfig: Readonly<FireflyTypes.RunConfig>,
         private buildConfig: Readonly<ScssBuildConfig>|null
     )

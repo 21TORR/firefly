@@ -1,9 +1,9 @@
 import sass, {Result} from "node-sass";
-import postcss, {AcceptedPlugin, Result as PostCSSResult, SourceMap} from "postcss";
+import postcss, {AcceptedPlugin, Result as PostCSSResult} from "postcss";
 import autoprefixer from "autoprefixer";
 import postCssReporter from "postcss-reporter";
 import Processor from 'postcss/lib/processor';
-import {blue, magenta, red, yellow} from 'kleur/colors';
+import {blue, magenta, red} from 'kleur/colors';
 import {Logger} from '../../lib/Logger';
 import path from 'path';
 import {ensureDir, remove, writeFile} from 'fs-extra';
@@ -30,7 +30,7 @@ export class ScssCompiler
 		private debug: boolean,
 		private fix: boolean,
 		private outDir: string,
-		private name: string,
+		name: string,
 		private filePath: string
 	)
 	{
@@ -81,7 +81,6 @@ export class ScssCompiler
 	{
 		const start = process.hrtime();
 		this.logger.log(`Start building ${blue(this.basename)}`);
-		let ok = true;
 
 		// remove output dir
 		await remove(this.outDir);
