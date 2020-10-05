@@ -186,7 +186,10 @@ export class Firefly
                     __DEBUG__: JSON.stringify(runConfig.debug),
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                 }),
-                commonjs(),
+                commonjs({
+                    include: 'node_modules/**',
+                    sourceMap: true,
+                }),
                 externalGlobals(this.externals),
                 typescript({
                     allowSyntheticDefaultImports: true,
@@ -212,6 +215,7 @@ export class Firefly
                     extensions,
                     exclude: getExcludePattern(this.packages),
                     babelHelpers: 'bundled',
+                    sourceMaps: true,
                     ...buildBabelConfig(isModern),
                 }),
             ],
