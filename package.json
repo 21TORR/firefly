@@ -10,7 +10,7 @@
 	"version": "0.0.1",
 	"main": "src/Firefly.js",
 	"bin": {
-		"bau": "bin/cli.js"
+		"firefly": "bin/cli.js"
 	},
 	"scripts": {
 		"build": "tsc --noEmitOnError --noErrorTruncation --listEmittedFiles --pretty --noUnusedLocals && chmod +x bin/cli.js",
