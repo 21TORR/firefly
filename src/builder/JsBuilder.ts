@@ -214,7 +214,7 @@ export class JsBuilder
 	{
 		const filesToLint = filterLintFilePaths(
 			filePaths,
-			(filePath) => filePath.startsWith(cwd)
+			(filePath) => filePath.startsWith(cwd) && !/\/tests\//.test(filePath)
 		);
 
 		if (!filesToLint.length)
