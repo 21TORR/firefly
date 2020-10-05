@@ -44,7 +44,7 @@
 		"kleur": "^4.1.1",
 		"node-sass": "^4.14.1",
 		"postcss": "^8.1.1",
-		"postcss-csso": "^4.0.0",
+		"postcss-csso": "^5.0.0",
 		"postcss-reporter": "^7.0.1",
 		"pretty-hrtime": "^1.0.3",
 		"rollup": "^2.26.9",

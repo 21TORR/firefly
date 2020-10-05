@@ -3,7 +3,7 @@ import {buildBabelConfig} from '../configs/babel-config';
 type Entries = Record<string, string>;
 import {JsBuildConfig} from "./builder/JsBuilder";
 import {terser} from 'rollup-plugin-terser';
-import resolve from '@rollup/plugin-node-resolve';
+import {nodeResolve} from '@rollup/plugin-node-resolve';
 import {InputOption, OutputOptions, RollupOptions} from "rollup";
 import {FireflyTypes} from "./@types/firefly";
 import del from 'rollup-plugin-delete';
@@ -154,7 +154,7 @@ export class Firefly
             output.plugins!.push(terser());
         }
 
-        const extensions = [".tsx", ".ts", ".mjsx", ".mjs", ".jsx", ".js"];
+        const extensions = [".tsx", ".ts", ".mjsx", ".mjs", ".jsx", ".js", ".json"];
 
         return {
             input: this.jsEntries,
@@ -167,15 +167,16 @@ export class Firefly
                         `${this.outputPath}/js`,
                     ],
                 }),
+                nodeResolve({extensions}),
                 replace({
                     __DEBUG__: JSON.stringify(runConfig.debug),
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                 }),
-                resolve({extensions}),
                 commonjs(),
                 typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,
+                    declaration: false,
                     esModuleInterop: true,
                     experimentalDecorators: true,
                     jsx: "react",
@@ -189,6 +190,7 @@ export class Firefly
                     ],
                     module: "esnext",
                     moduleResolution: "node",
+                    sourceMap: true,
                     target: "esnext",
                 }),
                 babel({

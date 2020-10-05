@@ -127,7 +127,7 @@ export class JsBuilder
 		this.logger = new Logger(yellow("JS"));
 	}
 
-	public async run (): Promise<boolean>
+	public async run (cwd: string): Promise<boolean>
 	{
 		const buildConfig = this.buildConfig;
 
@@ -168,7 +168,7 @@ export class JsBuilder
 
 					if (this.runConfig.debug)
 					{
-						await this.lintFiles(event.result.watchFiles);
+						await this.lintFiles(event.result.watchFiles, cwd);
 					}
 				}
 			});
@@ -203,19 +203,20 @@ export class JsBuilder
 				if (this.runConfig.debug)
 				{
 					const allFiles = bundleResults.reduce<string[]>((sum, current) => sum = sum.concat(current.files), []);
-					isValid = await this.lintFiles(allFiles);
+					isValid = await this.lintFiles(allFiles, cwd);
 				}
 
 				return isValid;
 			});
 	}
 
-	private async lintFiles (filePaths: string[]) : Promise<boolean>
+	private async lintFiles (filePaths: string[], cwd: string) : Promise<boolean>
 	{
 		const filesToLint = filterLintFilePaths(
 			filePaths,
-			(filePath) => true
+			(filePath) => filePath.startsWith(cwd)
 		);
+		console.log(filesToLint);
 
 		if (!filesToLint.length)
 		{

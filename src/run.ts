@@ -28,20 +28,23 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 	const logger = new Logger(cyan("Firefly"));
 	logger.log("Build started");
 	const start = process.hrtime();
+	const cwd = process.cwd();
 
 	try
 	{
-		const instance = require(`${process.cwd()}/firefly.js`);
+		const instance = require(`${cwd}/firefly.js`);
 
 		if (!(instance instanceof Firefly))
 		{
-			abortWithError("Invalid return value. Must be instance of `Firefly`.");
+			abortWithError(
+				`Found build file ${blue("firefly.js")}, but got invalid return value. Must be instance of 'Firefly'.`
+			);
 		}
 
 		const scss = new ScssBuilder(config, instance.generateScssBuildConfig(config));
 		const js = new JsBuilder(config, instance.generateJsBuildConfig(config));
 
-		Promise.all([scss.run(), js.run()])
+		Promise.all([scss.run(), js.run(cwd)])
 			.then(([scssResult, jsResult]: [boolean, boolean]) =>
 			{
 				// if we are exiting a watcher, just return neutral
