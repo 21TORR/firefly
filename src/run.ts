@@ -4,6 +4,7 @@ import {Logger} from "./lib/Logger";
 import {Firefly} from "./Firefly";
 import {ScssBuilder} from "./builder/ScssBuilder";
 import {JsBuilder} from "./builder/JsBuilder";
+import {magenta, yellow} from 'kleur/colors';
 
 
 /**
@@ -45,7 +46,7 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 		const js = new JsBuilder(config, instance.generateJsBuildConfig(config));
 
 		Promise.all([scss.run(), js.run(cwd)])
-			.then(([scssResult, jsResult]: [boolean, boolean]) =>
+			.then(([scssResult, jsResult]: [boolean|null, boolean|null]) =>
 			{
 				// if we are exiting a watcher, just return neutral
 				if (config.watch)
@@ -54,12 +55,20 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 					process.exit(0);
 				}
 
-				const failed = !scssResult || !jsResult;
-				const status = failed
-					? red("failed")
-					: green("succeeded");
-				logger.logWithDuration(`Build ${status}`, process.hrtime(start));
-				process.exit(failed ? 1 : 0);
+				const allOk = false !== scssResult || false !== jsResult;
+				const status = (succeeded: boolean|null) => {
+					if (null === succeeded)
+					{
+						return gray("skipped");
+					}
+
+					return succeeded ? green("succeeded") : red("failed")
+				};
+
+				logger.logWithDuration(`Build ${status(allOk)}`, process.hrtime(start));
+				logger.log(`(${magenta("SCSS")} ${status(scssResult)}, ${yellow("JS")} ${status(jsResult)})`);
+
+				process.exit(allOk ? 0 : 1);
 			})
 			.catch((...args) => {
 				console.log("Running the build failed", args);

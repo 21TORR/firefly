@@ -23,15 +23,14 @@ export class ScssBuilder
         this.compilers = [];
     }
 
-
     /**
      *
      */
-    public async run () : Promise<boolean>
+    public async run () : Promise<boolean|null>
     {
-        if (!this.buildConfig || (this.compilers.length && this.runConfig.watch))
+        if (!this.buildConfig || !Object.keys(this.buildConfig.entries).length || (this.compilers.length && this.runConfig.watch))
         {
-            return true;
+            return null;
         }
 
         const compilers: ScssCompiler[] = [];

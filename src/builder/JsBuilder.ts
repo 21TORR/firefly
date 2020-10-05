@@ -127,13 +127,13 @@ export class JsBuilder
 		this.logger = new Logger(yellow("JS"));
 	}
 
-	public async run (cwd: string): Promise<boolean>
+	public async run (cwd: string): Promise<boolean|null>
 	{
 		const buildConfig = this.buildConfig;
 
 		if (!buildConfig)
 		{
-			return true;
+			return null;
 		}
 
 		if (this.runConfig.watch)
@@ -216,7 +216,6 @@ export class JsBuilder
 			filePaths,
 			(filePath) => filePath.startsWith(cwd)
 		);
-		console.log(filesToLint);
 
 		if (!filesToLint.length)
 		{
