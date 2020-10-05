@@ -13,6 +13,7 @@ import babel from '@rollup/plugin-babel';
 import typescript from '@rollup/plugin-typescript';
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
+import externalGlobals from "rollup-plugin-external-globals";
 
 export class Firefly
 {
@@ -20,6 +21,9 @@ export class Firefly
     private jsEntries: InputOption = {};
     private scssEntries: Entries = {};
     private hashFileNames: boolean = true;
+    private externals: Record<string, string> = {
+        "jquery": "window.jQuery",
+    };
     private packages: string[] = [
         "@21torr",
     ];
@@ -82,6 +86,16 @@ export class Firefly
     public outputTo (path: string) : this
     {
         this.outputPath = path;
+        return this;
+    }
+
+    /**
+     * Sets externals
+     */
+    public withExternals (externals: Record<string, string>) : this
+    {
+        this.externals = {...this.externals, ...externals};
+
         return this;
     }
 
@@ -173,6 +187,7 @@ export class Firefly
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                 }),
                 commonjs(),
+                externalGlobals(this.externals),
                 typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,
