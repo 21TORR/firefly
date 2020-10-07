@@ -36,7 +36,12 @@ export class Firefly
      */
     public js (mapping: Entries) : this
     {
-        return this.addEntriesToList(mapping, this.jsEntries, "js");
+        return this.addEntriesToList(
+            mapping,
+            this.jsEntries,
+            "js",
+            ["_base"],
+        );
     }
 
 
@@ -54,11 +59,16 @@ export class Firefly
     /**
      * Adds the given to the entry list.
      */
-    private addEntriesToList (mapping: Entries, list: InputOption, type: string) : this
+    private addEntriesToList (mapping: Entries, list: InputOption, type: string, reservedNames: string[] = []) : this
     {
         for (const name in mapping)
         {
             let source = mapping[name];
+
+            if (reservedNames.includes(name))
+            {
+                throw new Error(`Can't use name '${name}', as it is a reserved name.`);
+            }
 
             if (!/^[./]/.test(source))
             {
