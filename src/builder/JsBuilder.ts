@@ -1,12 +1,14 @@
 import {RollupOptions, rollup, watch, OutputChunk, OutputAsset, RollupOutput, RollupWatcherEvent, InputOption} from "rollup";
 import {FireflyTypes} from "../@types/firefly";
-import {writeJSONSync, copyFileSync, ensureDirSync} from "fs-extra";
+import {writeJSONSync, ensureDirSync} from "fs-extra";
 import * as path from "path";
-import * as hasha from "hasha";
+import hasha from "hasha";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {ESLint} from "eslint";
 import {Logger} from '../lib/Logger';
 import {blue, yellow} from 'kleur/colors';
+import {readFileSync} from 'fs-extra';
+import {writeFileSync} from 'fs';
 
 export interface JsBuildConfig
 {
@@ -33,23 +35,25 @@ function isOutputChunk (output: OutputChunk|OutputAsset): output is OutputChunk
 
 
 /**
- * Writes the SystemJS integration file
+ * Writes a legacy base vendor file
  */
-function writeSystemJs (basePath: string, hashFileNames: boolean): string
+function writeLegacyBaseFile (basePath: string, hashFileNames: boolean): string
 {
-	const vendorPath = require.resolve("systemjs/dist/s.min.js");
-	let relativePath = `vendor/systemjs.js`;
+	const content = [
+		readFileSync(require.resolve("systemjs/dist/s.min.js")),
+		readFileSync(require.resolve("promise-polyfill/dist/polyfill.min.js")),
+	]
+		.join("\n");
 
-	if (hashFileNames)
-	{
-		const hash = hasha.fromFileSync(vendorPath, {algorithm: "sha256"}).substr(0, 10);
-		relativePath = `vendor/systemjs.${hash}.js`;
-	}
+	const hash = hashFileNames
+		? "." + hasha(content, {algorithm: "sha256"}).substr(0, 10)
+		: "";
 
+	const relativePath = `legacy/_base${hash}.js`;
 	const fullPath = `${basePath}/${relativePath}`;
 
 	ensureDirSync(path.dirname(fullPath));
-	copyFileSync(vendorPath, fullPath);
+	writeFileSync(fullPath, content);
 
 	return relativePath;
 }
@@ -61,11 +65,11 @@ function writeSystemJs (basePath: string, hashFileNames: boolean): string
 function writeDependencies (
 	bundleResults: CompileResult[],
 	basePath: string,
-	systemJsPath: string,
+	legacyBaseFile: string,
 ): void
 {
 	const manifest = {
-		systemjs: systemJsPath,
+		base: legacyBaseFile,
 	};
 
 	bundleResults.forEach(results =>
@@ -196,8 +200,8 @@ export class JsBuilder
 		}))
 			.then(async (bundleResults: CompileResult[]) =>
 			{
-				const systemJsPath = writeSystemJs(buildConfig.jsBase, buildConfig.hashFilenames);
-				writeDependencies(bundleResults, buildConfig.jsBase, systemJsPath);
+				const legacyBaseFile = writeLegacyBaseFile(buildConfig.jsBase, buildConfig.hashFilenames);
+				writeDependencies(bundleResults, buildConfig.jsBase, legacyBaseFile);
 				let isValid = true;
 
 				if (this.runConfig.debug)
