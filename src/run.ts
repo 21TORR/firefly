@@ -79,7 +79,7 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 		if (config.watch)
 		{
 			let alreadyExited = false;
-			const exitCallback = (event) =>
+			const exitCallback = () =>
 			{
 				if (alreadyExited)
 				{
