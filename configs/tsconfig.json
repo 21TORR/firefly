@@ -19,14 +19,5 @@
 		"sourceMap": true,
 		"strict": false,
 		"target": "es2016"
-	},
-	"include": [
-		"**/*.tsx",
-		"**/*.ts"
-	],
-	"exclude": [
-		"../node_modules",
-		"vendor",
-		"*typo3*"
-	]
+	}
 }
