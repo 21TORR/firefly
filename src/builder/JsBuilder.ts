@@ -35,21 +35,55 @@ function isOutputChunk (output: OutputChunk|OutputAsset): output is OutputChunk
 
 
 /**
+ * Writes a base file for modern files
+ */
+function writeModernBaseFile (basePath: string, hashFileNames: boolean): string
+{
+	return writeBaseFile(
+		[
+			// Load Promise  polyfill for `.finally()` support
+			require.resolve("promise-polyfill/dist/polyfill.min.js"),
+		],
+		"modern",
+		basePath,
+		hashFileNames,
+	);
+}
+
+
+/**
  * Writes a legacy base vendor file
  */
 function writeLegacyBaseFile (basePath: string, hashFileNames: boolean): string
 {
-	const content = [
-		readFileSync(require.resolve("systemjs/dist/s.min.js")),
-		readFileSync(require.resolve("promise-polyfill/dist/polyfill.min.js")),
-	]
+	return writeBaseFile(
+		[
+			// load the Promise polyfill before the system.js core, as it is using promises
+			require.resolve("promise-polyfill/dist/polyfill.min.js"),
+			require.resolve("systemjs/dist/s.min.js"),
+		],
+		"legacy",
+		basePath,
+		hashFileNames,
+	);
+}
+
+
+/**
+ * Writes a legacy base vendor file
+ */
+function writeBaseFile (files: string[], type: string, basePath: string, hashFileNames: boolean): string
+{
+	const content = files.map(
+		file => readFileSync(file).toString().trim(),
+	)
 		.join("\n");
 
 	const hash = hashFileNames
 		? "." + hasha(content, {algorithm: "sha256"}).substr(0, 10)
 		: "";
 
-	const relativePath = `legacy/_base${hash}.js`;
+	const relativePath = `${type}/_base${hash}.js`;
 	const fullPath = `${basePath}/${relativePath}`;
 
 	ensureDirSync(path.dirname(fullPath));
@@ -66,11 +100,10 @@ function writeDependencies (
 	bundleResults: CompileResult[],
 	basePath: string,
 	legacyBaseFile: string,
+	modernBaseFile: string,
 ): void
 {
-	const manifest = {
-		base: legacyBaseFile,
-	};
+	const manifest = {};
 
 	bundleResults.forEach(results =>
 	{
@@ -91,7 +124,9 @@ function writeDependencies (
 
 			if (!manifest[type][name])
 			{
-				manifest[type][name] = [];
+				manifest[type][name] = [
+					results.legacy ? legacyBaseFile : modernBaseFile
+				];
 			}
 
 			manifest[type][name].push(`${type}/${name}/${output.fileName}`);
@@ -200,8 +235,12 @@ export class JsBuilder
 		}))
 			.then(async (bundleResults: CompileResult[]) =>
 			{
-				const legacyBaseFile = writeLegacyBaseFile(buildConfig.jsBase, buildConfig.hashFilenames);
-				writeDependencies(bundleResults, buildConfig.jsBase, legacyBaseFile);
+				writeDependencies(
+					bundleResults,
+					buildConfig.jsBase,
+					writeLegacyBaseFile(buildConfig.jsBase, buildConfig.hashFilenames),
+					writeModernBaseFile(buildConfig.jsBase, buildConfig.hashFilenames)
+				);
 				let isValid = true;
 
 				if (this.runConfig.debug)
@@ -232,10 +271,10 @@ export class JsBuilder
 		});
 		const results = await eslint.lintFiles(filesToLint);
 
-		// if (this.runConfig.fix)
-		// {
-		// 	await ESLint.outputFixes(results);
-		// }
+		if (this.runConfig.fix)
+		{
+			await ESLint.outputFixes(results);
+		}
 
 		// Output the results
 		const formatter = await eslint.loadFormatter("stylish");
