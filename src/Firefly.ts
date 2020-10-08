@@ -1,6 +1,4 @@
 import {buildBabelConfig} from '../configs/babel-config';
-
-type Entries = Record<string, string>;
 import {JsBuildConfig} from "./builder/JsBuilder";
 import {terser} from 'rollup-plugin-terser';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
@@ -14,6 +12,8 @@ import typescript from '@rollup/plugin-typescript';
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
+
+type Entries = Record<string, string>;
 
 export class Firefly
 {
