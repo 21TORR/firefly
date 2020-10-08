@@ -121,7 +121,7 @@ export class ScssCompiler
 		this.watcher
 			.on("add", (changedFile: string) => this.onChangedFile(changedFile))
 			.on("change", (changedFile: string) => this.onChangedFile(changedFile))
-			.on("unlink", (changedFile: string) => this.onChangedFile(changedFile))
+			.on("unlink", (changedFile: string) => this.onChangedFile(changedFile));
 	}
 
 	/**

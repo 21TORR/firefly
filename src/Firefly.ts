@@ -101,6 +101,8 @@ export class Firefly
 
     /**
      * Sets externals
+     *
+     * @api
      */
     public withExternals (externals: Record<string, string>) : this
     {
@@ -155,6 +157,7 @@ export class Firefly
         };
     }
 
+
     /**
      *
      */
@@ -191,11 +194,11 @@ export class Firefly
                         `${this.outputPath}/js`,
                     ],
                 }),
-                nodeResolve({extensions}),
                 replace({
                     __DEBUG__: JSON.stringify(runConfig.debug),
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                 }),
+                nodeResolve({extensions}),
                 commonjs({
                     include: 'node_modules/**',
                     sourceMap: true,
