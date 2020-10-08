@@ -1,3 +1,16 @@
 {
-	"extends": "./node_modules/@21torr/firefly/configs/tsconfig.json"
+	"extends": "@21torr/firefly/configs/tsconfig.json",
+	"include": [
+		"**/*.tsx",
+		"**/*.ts",
+		"**/*.mjsx",
+		"**/*.mjs",
+		"**/*.jsx",
+		"**/*.js"
+	],
+	"exclude": [
+		"node_modules",
+		"vendor",
+		"*typo3*"
+	]
 }

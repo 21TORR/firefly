@@ -32,6 +32,7 @@ globals:
     App: true
     Foundation: true
     require: false
+    __DEBUG__: true
 
 extends:
     - 'eslint:recommended'
