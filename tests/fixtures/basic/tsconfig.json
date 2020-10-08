@@ -1,0 +1,16 @@
+{
+	"extends": "../../../configs/tsconfig.json",
+	"include": [
+		"**/*.tsx",
+		"**/*.ts",
+		"**/*.mjsx",
+		"**/*.mjs",
+		"**/*.jsx",
+		"**/*.js"
+	],
+	"exclude": [
+		"node_modules",
+		"vendor",
+		"*typo3*"
+	]
+}
