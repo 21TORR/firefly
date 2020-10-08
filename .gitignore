@@ -11,3 +11,4 @@
 *.js
 !/src/@types/*.d.ts
 !/tests/**/*.js
+!/init/*.js
