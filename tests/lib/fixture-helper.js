@@ -7,8 +7,7 @@ import {copySync, removeSync} from "fs-extra";
  */
 export async function runFixture (
 	fixtureName,
-	callback,
-	args = []
+	callback
 )
 {
 	const fixturePath = path.resolve(__dirname, "../fixtures", fixtureName);
@@ -19,7 +18,7 @@ export async function runFixture (
 
 	const result = await execa(
 		path.join(__dirname, "../../bin/cli.js"),
-		args,
+		["ci"],
 		{
 			cwd: buildPath,
 			reject: false,
