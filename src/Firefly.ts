@@ -2,7 +2,7 @@ import {buildBabelConfig} from '../configs/babel-config';
 import {JsBuildConfig} from "./builder/JsBuilder";
 import {terser} from 'rollup-plugin-terser';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
-import {InputOption, OutputOptions, RollupOptions} from "rollup";
+import {OutputOptions, RollupOptions} from "rollup";
 import {FireflyTypes} from "./@types/firefly";
 import del from 'rollup-plugin-delete';
 import commonjs from "@rollup/plugin-commonjs";
@@ -12,16 +12,17 @@ import typescript from '@rollup/plugin-typescript';
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
+import * as path from 'path';
 
 type Entries = Record<string, string>;
 
 export class Firefly
 {
     private outputPath = "build";
-    private jsEntries: InputOption = {};
+    private jsEntries: Entries = {};
     private scssEntries: Entries = {};
     private hashFileNames: boolean = true;
-    private externals: Record<string, string> = {
+    private externals: Entries = {
         "jquery": "window.jQuery",
     };
     private packages: string[] = [
@@ -59,7 +60,7 @@ export class Firefly
     /**
      * Adds the given to the entry list.
      */
-    private addEntriesToList (mapping: Entries, list: InputOption, type: string, reservedNames: string[] = []) : this
+    private addEntriesToList (mapping: Entries, list: Entries, type: string, reservedNames: string[] = []) : this
     {
         for (const name in mapping)
         {
@@ -204,7 +205,7 @@ export class Firefly
                     sourceMap: true,
                 }),
                 externalGlobals(this.externals),
-                typescript({
+                this.hasTypeScriptEntry() ? typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,
                     declaration: false,
@@ -223,7 +224,8 @@ export class Firefly
                     moduleResolution: "node",
                     sourceMap: true,
                     target: "esnext",
-                }),
+                    typescript: require("typescript"),
+                }) : undefined,
                 babel({
                     extensions,
                     exclude: getExcludePattern(this.packages),
@@ -240,6 +242,16 @@ export class Firefly
                 },
             ],
         };
+    }
+
+
+    /**
+     * Checks whether there is a TypeScript entry file
+     */
+    private hasTypeScriptEntry () : boolean
+    {
+        return Object.values(this.jsEntries)
+            .some(filePath => /^\.tsx?$/.test(path.extname(filePath)));
     }
 
 
