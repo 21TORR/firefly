@@ -55,7 +55,7 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 					process.exit(0);
 				}
 
-				const allOk = false !== scssResult || false !== jsResult;
+				const allOk = false !== scssResult && false !== jsResult;
 				const status = (succeeded: boolean|null) => {
 					if (null === succeeded)
 					{
