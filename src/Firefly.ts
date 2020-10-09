@@ -118,7 +118,7 @@ export class Firefly
      *
      * @api
      */
-    public compilePackage (...packages: string[]) : this
+    public compilePackages (...packages: string[]) : this
     {
         this.packages = this.packages.concat(packages);
         return this;
