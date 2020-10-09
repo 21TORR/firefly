@@ -245,7 +245,7 @@ export class JsBuilder
 
 				if (this.runConfig.debug)
 				{
-					const allFiles = bundleResults.reduce<string[]>((sum, current) => sum = sum.concat(current.files), []);
+					const allFiles = bundleResults.reduce<string[]>((sum, current) => sum.concat(current.files), []);
 					isValid = await this.lintFiles(allFiles, cwd);
 				}
 
@@ -253,11 +253,14 @@ export class JsBuilder
 			});
 	}
 
+	/**
+	 * Lints all given files
+	 */
 	private async lintFiles (filePaths: string[], cwd: string) : Promise<boolean>
 	{
 		const filesToLint = filterLintFilePaths(
 			filePaths,
-			(filePath) => filePath.startsWith(cwd) && !/\/tests\//.test(filePath)
+			(filePath) => filePath.startsWith(cwd)
 		);
 
 		if (!filesToLint.length)
@@ -266,6 +269,7 @@ export class JsBuilder
 		}
 
 		const eslint = new ESLint({
+			cwd,
 			fix: this.runConfig.fix,
 			overrideConfigFile: path.join(__dirname, "../../configs/.eslintrc.yaml"),
 		});
@@ -282,7 +286,10 @@ export class JsBuilder
 
 		if ("" !== output)
 		{
-			console.log(output);
+			this.logger.log("Found linting issues:");
+
+			// output lint results, but replace absolute paths with their relative ones
+			console.log(output.replace(`${cwd}/`, ""));
 		}
 
 		// return whether all were ok, or if there are any entries that have errors / warnings

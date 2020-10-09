@@ -172,6 +172,7 @@ export class ScssCompiler
 
 		if ("" !== output)
 		{
+			this.logger.log("Found linting issues:");
 			console.log("");
 			console.log(output);
 			console.log("");
