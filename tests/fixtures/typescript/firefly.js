@@ -6,4 +6,5 @@ module.exports = (new Firefly())
 	})
 	.scss({
 		test: "assets/test.scss",
-	});
+	})
+	.disableFileNameHashing();
