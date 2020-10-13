@@ -6,7 +6,7 @@ import {blue, magenta} from 'kleur';
 import {Logger} from '../lib/Logger';
 import {lint} from "stylelint";
 import {filterLintFilePaths} from '../lib/array-filter';
-import {formatBundleSizes} from './lib/reporter';
+import {formatScssBundleSizes} from './lib/reporter';
 
 
 export interface ScssBuildConfig
@@ -29,7 +29,7 @@ export class ScssBuilder
     private watcher: FSWatcher|undefined;
     private readonly logger: Logger;
     private readonly stylelintConfigFile: string;
-
+    private watcherResolve: (() => void)|undefined;
 
     /**
      */
@@ -88,7 +88,18 @@ export class ScssBuilder
                 .on("change", (changedFile: string) => this.onChangedFile(changedFile))
                 .on("unlink", (changedFile: string) => this.onChangedFile(changedFile));
 
-            return true;
+            return new Promise(resolve => {
+                this.watcherResolve = resolve;
+            })
+                .then(async () => {
+                    if (this.watcher)
+                    {
+                        await this.watcher.close();
+                        this.watcher = undefined;
+                    }
+
+                    return true;
+                });
         }
 
         return !hasLintErrors;
@@ -141,7 +152,7 @@ export class ScssBuilder
         // reports the built files
         this.logger.log(`Finished building ${names}`, {
             duration: process.hrtime(start),
-            details: formatBundleSizes(results, magenta),
+            details: formatScssBundleSizes(results),
         });
     }
 
@@ -214,11 +225,11 @@ export class ScssBuilder
      */
     public stop () : void
     {
-        if (this.watcher)
+        if (this.watcherResolve)
         {
             this.logger.log(`Stopped watching`);
-            this.watcher.close();
-            this.watcher = undefined;
+            this.watcherResolve();
+            this.watcherResolve = undefined;
             this.lastCompilationResults = {};
         }
     }

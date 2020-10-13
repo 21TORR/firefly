@@ -8,12 +8,15 @@ import {Logger} from '../../lib/Logger';
 import path from 'path';
 import {ensureDir, remove, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
+import {resolveScssImport} from './resolver';
+
 
 export interface ScssCompilationResult
 {
 	includedFiles: string[];
-	size: number;
+	size?: number;
 	name: string;
+	error?: Error;
 }
 
 
@@ -59,24 +62,36 @@ export class ScssCompiler
 	 */
 	async build () : Promise<ScssCompilationResult>
 	{
-		// remove output dir
-		await remove(this.outDir);
+		try
+		{
+			// remove output dir
+			await remove(this.outDir);
 
-		// build SCSS
-		const nodeSassResult: Result = await this.runNodeSass();
-		const compiledFiles = nodeSassResult.stats.includedFiles;
+			// build SCSS
+			const nodeSassResult: Result = await this.runNodeSass();
+			const compiledFiles = nodeSassResult.stats.includedFiles;
 
-		// run postcss
-		const postProcessed = await this.postProcess(nodeSassResult);
+			// run postcss
+			const postProcessed = await this.postProcess(nodeSassResult);
 
-		// write files
-		await this.writeFiles(postProcessed.css, postProcessed.map.toString());
+			// write files
+			await this.writeFiles(postProcessed.css, postProcessed.map.toString());
 
-		return {
-			includedFiles: compiledFiles,
-			name: this.basename,
-			size: postProcessed.css.length,
-		};
+			return {
+				includedFiles: compiledFiles,
+				name: this.basename,
+				size: postProcessed.css.length,
+			};
+		}
+		catch (e)
+		{
+			return {
+				name: this.basename,
+				// at least include the file itself in the included files
+				includedFiles: [this.filePath],
+				error: e,
+			}
+		}
 	}
 
 
@@ -85,26 +100,37 @@ export class ScssCompiler
 	 */
 	private async runNodeSass () : Promise<Result>
 	{
-		return await new Promise((resolve, reject) => {
-			sass.render(
-				{
-					file: this.filePath,
-					outFile: this.outPath,
-					outputStyle: 'expanded',
-					sourceMap: true,
-					includePaths: [this.base],
-					sourceComments: this.debug,
-				},
-				(err, result) => {
-					if (err)
+		try
+		{
+			return await new Promise((resolve, reject) => {
+				sass.render(
 					{
-						return reject(err);
-					}
+						file: this.filePath,
+						outFile: this.outPath,
+						outputStyle: 'expanded',
+						sourceMap: true,
+						includePaths: [this.base],
+						sourceComments: this.debug,
+						importer: resolveScssImport,
+					},
+					(err, result) => {
+						if (err)
+						{
+							return reject(err);
+						}
 
-					return resolve(result);
-				}
-			);
-		});
+						return resolve(result);
+					}
+				);
+			});
+		}
+		catch (e)
+		{
+			this.logger.log(red("Build error"), {
+				details: e.formatted,
+			});
+			throw e;
+		}
 	}
 
 

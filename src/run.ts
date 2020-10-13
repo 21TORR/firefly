@@ -90,7 +90,6 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 				}
 
 				alreadyExited = true;
-				console.log("");
 				logger.log("Exiting...");
 				scss.stop();
 				js.stop();
