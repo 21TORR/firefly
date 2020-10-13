@@ -261,7 +261,7 @@ export class Firefly
      */
     public generateScssBuildConfig (runConfig: FireflyTypes.RunConfig) : ScssBuildConfig|null
     {
-        if (!Object.keys(this.jsEntries).length)
+        if (!Object.keys(this.scssEntries).length)
         {
             return null;
         }
