@@ -6,7 +6,7 @@ import {blue, magenta} from 'kleur';
 import {Logger} from '../lib/Logger';
 import {lint} from "stylelint";
 import {filterLintFilePaths} from '../lib/array-filter';
-import {reportBundleSizes} from './lib/reporter';
+import {formatBundleSizes} from './lib/reporter';
 
 
 export interface ScssBuildConfig
@@ -132,10 +132,6 @@ export class ScssBuilder
             })
         );
 
-        this.logger.log(`Finished building ${names}`, {
-            duration: process.hrtime(start),
-        });
-
         const results = compilations.map(result =>
         {
             this.lastCompilationResults[result.entry] = result.result;
@@ -143,7 +139,10 @@ export class ScssBuilder
         });
 
         // reports the built files
-        reportBundleSizes(this.logger, results, magenta);
+        this.logger.log(`Finished building ${names}`, {
+            duration: process.hrtime(start),
+            details: formatBundleSizes(results, magenta),
+        });
     }
 
     /**

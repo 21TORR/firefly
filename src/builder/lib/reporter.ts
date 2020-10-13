@@ -54,7 +54,7 @@ function renderEntry (entry: BundledFile) : string
 /**
  * Reports the bundle sizes of the given files
  */
-export function reportBundleSizes (logger: Logger, files: BundledFile[], headline: Color) : void
+export function formatBundleSizes (files: BundledFile[], headline: Color) : string
 {
 	const entries: BundledFile[] = [];
 	const imports: BundledFile[] = [];
@@ -81,19 +81,14 @@ export function reportBundleSizes (logger: Logger, files: BundledFile[], headlin
 		lines.push("");
 	}
 
-	if (lines.length)
-	{
-		logger.log("Built files summary:", {
-			details: lines.join("\n"),
-		});
-	}
+	return lines.join("\n");
 }
 
 
 /**
  * Reports the rollup bundle sizes
  */
-export function reportRollupBundleSizes (logger: Logger, base: string, output: RollupOutput) : void
+export function formatRollupBundleSizes (base: string, output: RollupOutput) : string
 {
 	const bundled: BundledFile[] = [];
 
@@ -109,7 +104,7 @@ export function reportRollupBundleSizes (logger: Logger, base: string, output: R
 		}
 	});
 
-	reportBundleSizes(logger, bundled, yellow);
+	return formatBundleSizes(bundled, yellow);
 }
 
 
