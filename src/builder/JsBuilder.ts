@@ -9,6 +9,7 @@ import {Logger} from '../lib/Logger';
 import {blue, yellow} from 'kleur/colors';
 import {readFileSync} from 'fs-extra';
 import {writeFileSync} from 'fs';
+import {reportRollupBundleSizes} from './lib/reporter';
 
 export interface JsBuildConfig
 {
@@ -19,6 +20,7 @@ export interface JsBuildConfig
 
 interface CompileResult
 {
+	inputs: string;
 	output: RollupOutput;
 	legacy: boolean;
 	files: string[];
@@ -142,9 +144,9 @@ function isEventForModernBuild (event: RollupWatcherEvent & {output: readonly st
 	return -1 === firstEntry.indexOf("legacy");
 }
 
-function formatInputFiles (event: RollupWatcherEvent & {input: InputOption}): string
+function formatInputFiles (input: InputOption): string
 {
-	return Object.keys(event.input)
+	return Object.keys(input)
 		.map(filePath => blue(path.basename(filePath)))
 		.join(", ");
 }
@@ -184,7 +186,7 @@ export class JsBuilder
 			{
 				if (event.code === "BUNDLE_START" && isEventForModernBuild(event))
 				{
-					const inputs = formatInputFiles(event);
+					const inputs = formatInputFiles(event.input);
 					this.logger.log(`Start building ${inputs}`);
 					this.timers[inputs] = process.hrtime();
 					return;
@@ -192,7 +194,8 @@ export class JsBuilder
 
 				if (event.code === "BUNDLE_END" && isEventForModernBuild(event))
 				{
-					const inputs = formatInputFiles(event);
+					const inputs = formatInputFiles(event.input);
+
 					if (this.timers[inputs])
 					{
 						this.logger.logWithDuration(`Finished building ${inputs}`, process.hrtime(this.timers[inputs]));
@@ -202,8 +205,6 @@ export class JsBuilder
 					{
 						this.logger.log(`Finished building ${inputs}`);
 					}
-
-
 
 					if (this.runConfig.debug)
 					{
@@ -224,17 +225,37 @@ export class JsBuilder
 
 		return Promise.all(buildConfig.configs.map(async config =>
 		{
-			const bundle = await rollup(config);
 			const output = config.output![0];
+			const legacy = "system" === output.format;
+			const inputs = formatInputFiles(config.input as InputOption);
+
+			if (!legacy)
+			{
+				this.logger.log(`Start building ${inputs}`);
+				this.timers[inputs] = process.hrtime();
+			}
+
+			const bundle = await rollup(config);
+
 
 			return {
+				inputs,
 				output: await bundle.write(output),
-				legacy: "system" === output.format,
+				legacy: legacy,
 				files: bundle.watchFiles,
 			};
 		}))
 			.then(async (bundleResults: CompileResult[]) =>
 			{
+				bundleResults.forEach(results => {
+
+					if (!results.legacy)
+					{
+						this.logger.logWithDuration(`Finished building ${results.inputs}`, process.hrtime(this.timers[results.inputs]));
+						reportRollupBundleSizes(this.logger, path.join(cwd, buildConfig.jsBase, "modern"), results.output);
+					}
+				});
+
 				writeDependencies(
 					bundleResults,
 					buildConfig.jsBase,
