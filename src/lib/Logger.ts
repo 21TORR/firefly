@@ -1,13 +1,5 @@
-import {gray, green, red, yellow} from "kleur";
+import {gray} from "kleur";
 const prettyHrtime = require("pretty-hrtime");
-
-interface FileError
-{
-    file: string;
-    line: number;
-    message: string;
-    formatted: string;
-}
 
 interface LogOptions {
     duration?: [number, number];
@@ -76,17 +68,5 @@ export class Logger
             String(now.getMinutes()).padStart(2, "0"),
             String(now.getSeconds()).padStart(2, "0"),
         ].join(":");
-    }
-
-
-    /**
-     * Adds new lines
-     */
-    private newLine (lines: number = 1): void
-    {
-        for (let i = 0; i < lines; i++)
-        {
-            console.log("");
-        }
     }
 }

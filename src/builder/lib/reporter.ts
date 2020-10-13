@@ -1,7 +1,6 @@
 import {OutputAsset, OutputChunk, RollupOutput} from 'rollup';
 import path from 'path';
-import {Logger} from '../../lib/Logger';
-import {bgYellow, blue, green, red, yellow, Color} from 'kleur';
+import {blue, green, red, yellow, Color} from 'kleur';
 import {statSync} from "fs-extra";
 import prettyBytes from "pretty-bytes";
 import {gray} from 'kleur/colors';
