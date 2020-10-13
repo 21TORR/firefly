@@ -3,42 +3,39 @@ import postcss, {AcceptedPlugin, Result as PostCSSResult} from "postcss";
 import autoprefixer from "autoprefixer";
 import postCssReporter from "postcss-reporter";
 import Processor from 'postcss/lib/processor';
-import {bgMagenta, blue, magenta, red} from 'kleur';
+import {blue, red} from 'kleur';
 import {Logger} from '../../lib/Logger';
 import path from 'path';
 import {ensureDir, remove, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
-import chokidar, {FSWatcher} from "chokidar";
-import {lint} from "stylelint";
-import {filterLintFilePaths} from '../../lib/array-filter';
-import {reportBundleSizes} from '../lib/reporter';
+
+export interface ScssCompilationResult
+{
+	includedFiles: string[];
+	size: number;
+	name: string;
+}
 
 
 export class ScssCompiler
 {
-	private postProcessor: Processor;
-	private logger: Logger;
-	private basename: string;
-	private outPath: string;
-	private watcher: FSWatcher|undefined;
-	private lastCompiledFiles: string[] = [];
-	private stylelintConfigFile: string;
+	private readonly postProcessor: Processor;
+	private readonly basename: string;
+	private readonly outPath: string;
 
 	/**
 	 */
 	constructor (
+		private readonly logger: Logger,
 		private base: string,
 		private debug: boolean,
-		private fix: boolean,
 		private outDir: string,
 		name: string,
-		private filePath: string
+		private filePath: string,
 	)
 	{
 		this.basename = path.basename(filePath);
 		this.outPath = path.join(this.outDir, `${name}.css`);
-		this.logger = new Logger(magenta("SCSS"));
-		this.stylelintConfigFile = path.join(__dirname, "../../../configs/.stylelintrc.yml")
 
 		const plugins: AcceptedPlugin[] = [
 			autoprefixer({
@@ -60,29 +57,8 @@ export class ScssCompiler
 	/**
 	 * Builds the file once
 	 */
-	async build () : Promise<boolean>
+	async build () : Promise<ScssCompilationResult>
 	{
-		const includedFiles = await this.run();
-
-		if (this.debug)
-		{
-			return await this.lintFiles(includedFiles);
-		}
-
-		return true;
-	}
-
-
-	/**
-	 * Runs the build and returns the compiler result
-	 *
-	 * @return Returns the included files
-	 */
-	async run () : Promise<string[]>
-	{
-		const start = process.hrtime();
-		this.logger.log(`Start building ${blue(this.basename)}`);
-
 		// remove output dir
 		await remove(this.outDir);
 
@@ -96,90 +72,11 @@ export class ScssCompiler
 		// write files
 		await this.writeFiles(postProcessed.css, postProcessed.map.toString());
 
-		this.logger.logWithDuration(`Finished building ${blue(this.basename)}`, process.hrtime(start));
-
-		return compiledFiles;
-	}
-
-	/**
-	 * Starts a watcher for the given file
-	 */
-	async watch () : Promise<void>
-	{
-		if (this.watcher)
-		{
-			return;
-		}
-
-		const includedFiles = await this.run();
-		this.watcher = chokidar.watch(includedFiles, {
-			ignoreInitial: true,
-		});
-
-		this.logger.log(`Start watching ${blue(this.basename)}`);
-		this.lastCompiledFiles = includedFiles;
-
-		this.watcher
-			.on("add", (changedFile: string) => this.onChangedFile(changedFile))
-			.on("change", (changedFile: string) => this.onChangedFile(changedFile))
-			.on("unlink", (changedFile: string) => this.onChangedFile(changedFile));
-	}
-
-	/**
-	 * Callback on when a file changed
-	 */
-	private async onChangedFile (changedFile: string) : Promise<void>
-	{
-		if (!this.watcher)
-		{
-			return;
-		}
-
-		// stop watcher
-		this.watcher.unwatch(this.lastCompiledFiles);
-
-		// only lint the given file
-		await this.lintFiles([changedFile]);
-
-		// run compilation + update watched files
-		this.lastCompiledFiles = await this.run();
-		this.watcher.add(this.lastCompiledFiles);
-	}
-
-	/**
-	 * Lints the given files
-	 */
-	private async lintFiles (filePaths: string[]) : Promise<boolean>
-	{
-		const filesToLint = filterLintFilePaths(
-			filePaths,
-			(filePath) => "~" !== filePath[0] && filePath.startsWith(this.base)
-		);
-
-		if (!filesToLint.length)
-		{
-			return true;
-		}
-
-		const results = await lint({
-			configFile: this.stylelintConfigFile,
-			files: filesToLint,
-			formatter: "string",
-			cache: true,
-			fix: this.fix,
-		});
-
-		const output = results.output.trim();
-
-		if ("" !== output)
-		{
-			this.logger.log("Found linting issues:");
-			console.log("");
-			console.log(output);
-			console.log("");
-		}
-
-		return results.errored;
+		return {
+			includedFiles: compiledFiles,
+			name: this.basename,
+			size: postProcessed.css.length,
+		};
 	}
 
 
@@ -241,35 +138,10 @@ export class ScssCompiler
 	 */
 	private async writeFiles (css: string, sourceMap: string) : Promise<unknown>
 	{
-		reportBundleSizes(
-			this.logger,
-			[{
-				name: path.basename(this.outPath),
-				size: css.length,
-			}],
-			"SCSS",
-			bgMagenta().black
-		)
-
 		await ensureDir(this.outDir);
 		return Promise.all([
 			writeFile(this.outPath, css),
 			writeFile(this.outPath + ".map", sourceMap),
 		]);
-	}
-
-
-	/**
-	 * Stops a watcher (if one is active)
-	 */
-	public async stop () : Promise<void>
-	{
-		if (this.watcher)
-		{
-			this.logger.log(`Stopped watching ${blue(this.basename)}`);
-			await this.watcher.close();
-			this.watcher = undefined;
-			this.lastCompiledFiles = [];
-		}
 	}
 }

@@ -1,6 +1,13 @@
 import {FireflyTypes} from '../@types/firefly';
 import path from 'path';
-import {ScssCompiler} from './scss/ScssCompiler';
+import {ScssCompilationResult, ScssCompiler} from './scss/ScssCompiler';
+import chokidar, {FSWatcher} from "chokidar";
+import {blue, magenta} from 'kleur';
+import {Logger} from '../lib/Logger';
+import {lint} from "stylelint";
+import {filterLintFilePaths} from '../lib/array-filter';
+import {reportBundleSizes} from './lib/reporter';
+
 
 export interface ScssBuildConfig
 {
@@ -9,9 +16,20 @@ export interface ScssBuildConfig
     base: string;
 }
 
+
 export class ScssBuilder
 {
-    private compilers: ScssCompiler[];
+    private readonly compilers: Record<string, ScssCompiler> = {};
+
+    /**
+     * Map of all the last compilation results
+     */
+    private lastCompilationResults: Record<string, ScssCompilationResult> = {};
+
+    private watcher: FSWatcher|undefined;
+    private readonly logger: Logger;
+    private readonly stylelintConfigFile: string;
+
 
     /**
      */
@@ -20,7 +38,25 @@ export class ScssBuilder
         private buildConfig: Readonly<ScssBuildConfig>|null
     )
     {
-        this.compilers = [];
+        this.compilers = {};
+        this.logger = new Logger(magenta("SCSS"));
+        this.stylelintConfigFile = path.join(__dirname, "../../configs/.stylelintrc.yml")
+
+        if (buildConfig)
+        {
+            for (const name in buildConfig.entries)
+            {
+                const filePath = path.join(buildConfig.base, buildConfig.entries[name]);
+                this.compilers[name] = new ScssCompiler(
+                    this.logger,
+                    buildConfig.base,
+                    runConfig.debug,
+                    buildConfig.output,
+                    name,
+                    filePath,
+                );
+            }
+        }
     }
 
     /**
@@ -28,39 +64,149 @@ export class ScssBuilder
      */
     public async run () : Promise<boolean|null>
     {
-        if (!this.buildConfig || !Object.keys(this.buildConfig.entries).length || (this.compilers.length && this.runConfig.watch))
+        if (!Object.keys(this.compilers).length)
         {
             return null;
         }
 
-        const compilers: ScssCompiler[] = [];
+        // start by first compiling all
+        await this.compileEntries(Object.keys(this.compilers));
+        const allIncludedFiles = this.fetchAllIncludedFiles();
 
-        for (const name in this.buildConfig.entries)
-        {
-            const filePath = path.join(this.buildConfig.base, this.buildConfig.entries[name]);
-
-            compilers.push(new ScssCompiler(
-                this.buildConfig.base,
-                this.runConfig.debug,
-                this.runConfig.fix,
-                this.buildConfig.output,
-                name,
-                filePath
-            ));
-        }
+        // then linting all
+        const hasLintErrors = await this.lintFiles(allIncludedFiles);
 
         if (this.runConfig.watch)
         {
-            compilers.forEach(compiler => compiler.watch());
-            this.compilers = compilers;
+            this.logger.log(`Started watching`);
+            this.watcher = chokidar.watch(allIncludedFiles, {
+                ignoreInitial: true,
+            });
+
+            this.watcher
+                .on("add", (changedFile: string) => this.onChangedFile(changedFile))
+                .on("change", (changedFile: string) => this.onChangedFile(changedFile))
+                .on("unlink", (changedFile: string) => this.onChangedFile(changedFile));
+
             return true;
         }
 
-        // run build for every compiler and wait for the stop
-        return Promise.all(
-            compilers.map(compiler => compiler.build())
-        )
-            .then(results => results.includes(false));
+        return !hasLintErrors;
+    }
+
+
+    /**
+     * Fetches a list of all included files
+     */
+    private fetchAllIncludedFiles () : string[]
+    {
+        const includes = {};
+
+        for (const entry in this.lastCompilationResults)
+        {
+            this.lastCompilationResults[entry].includedFiles.forEach(
+                file => includes[file] = true
+            );
+        }
+
+        return Object.keys(includes);
+    }
+
+
+    /**
+     * Compiles the given entries
+     */
+    private async compileEntries (entries: string[]) : Promise<void>
+    {
+        const start = process.hrtime();
+        const names = entries.map(blue).join(", ");
+
+        this.logger.log(`Start building ${names}`);
+
+        const compilations = await Promise.all(
+            entries.map(async entry => {
+                return {
+                    entry,
+                    result: await this.compilers[entry].build()
+                }
+            })
+        );
+
+        this.logger.log(`Finished building ${names}`, {
+            duration: process.hrtime(start),
+        });
+
+        const results = compilations.map(result =>
+        {
+            this.lastCompilationResults[result.entry] = result.result;
+            return result.result;
+        });
+
+        // reports the built files
+        reportBundleSizes(this.logger, results, magenta);
+    }
+
+    /**
+     * Callback on when a file changed
+     */
+    private async onChangedFile (changedFile: string): Promise<void>
+    {
+        const watchedFilesBefore = this.fetchAllIncludedFiles();
+        const entriesToCompile: string[] = [];
+
+        for (const entry in this.lastCompilationResults)
+        {
+            if (this.lastCompilationResults[entry].includedFiles.includes(changedFile))
+            {
+                entriesToCompile.push(entry);
+            }
+        }
+
+        // compile all entries that needs compilation
+        await this.compileEntries(entriesToCompile);
+
+        // lints the changed file
+        await this.lintFiles([changedFile]);
+
+        // update watcher
+        this.watcher!.unwatch(watchedFilesBefore);
+        this.watcher!.add(this.fetchAllIncludedFiles());
+    }
+
+
+    /**
+     * Lints the given files
+     *
+     * @return if the build error
+     */
+    private async lintFiles (filePaths: string[]) : Promise<boolean>
+    {
+        const filesToLint = filterLintFilePaths(
+            filePaths,
+            (filePath) => "~" !== filePath[0] && filePath.startsWith(this.buildConfig!.base)
+        );
+
+        if (!filesToLint.length)
+        {
+            return true;
+        }
+
+        const results = await lint({
+            configFile: this.stylelintConfigFile,
+            files: filesToLint,
+            formatter: "string",
+            cache: true,
+            fix: this.runConfig.fix,
+        });
+
+        const output = results.output.trim();
+
+        if ("" !== output)
+        {
+            this.logger.log("Found linting issues:", {details: output});
+        }
+
+        return results.errored;
     }
 
 
@@ -69,10 +215,12 @@ export class ScssBuilder
      */
     public stop () : void
     {
-        if (this.compilers.length)
+        if (this.watcher)
         {
-            this.compilers.forEach(async compiler => await compiler.stop());
-            this.compilers = [];
+            this.logger.log(`Stopped watching`);
+            this.watcher.close();
+            this.watcher = undefined;
+            this.lastCompilationResults = {};
         }
     }
 }

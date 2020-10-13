@@ -54,32 +54,38 @@ function renderEntry (entry: BundledFile) : string
 /**
  * Reports the bundle sizes of the given files
  */
-export function reportBundleSizes (logger: Logger, files: BundledFile[], headlinePrefix: string, headline: Color) : void
+export function reportBundleSizes (logger: Logger, files: BundledFile[], headline: Color) : void
 {
 	const entries: BundledFile[] = [];
 	const imports: BundledFile[] = [];
+	let lines: string[] = [];
 
 	files.forEach(file =>
 	{
 		(file.import ? imports : entries).push(file);
 	})
 
-	logger.log("");
-
 	// first report entries
 	if (entries.length)
 	{
-		logger.log(headline(`${headlinePrefix} Entries`));
-		entries.forEach(entry => logger.log(`  • ${renderEntry(entry)}`));
-		logger.log("");
+		lines.push(headline(`Entries`));
+		lines = lines.concat(entries.map(entry => `  • ${renderEntry(entry)}`));
+		lines.push("");
 	}
 
 	// then report imports
 	if (imports.length)
 	{
-		logger.log(headline(`${headlinePrefix} Dynamic Imports`));
-		imports.forEach(entry => logger.log(`  • ${renderEntry(entry)}`));
-		logger.log("");
+		lines.push(headline(`Dynamic Imports`));
+		lines = lines.concat(imports.map(entry => `  • ${renderEntry(entry)}`));
+		lines.push("");
+	}
+
+	if (lines.length)
+	{
+		logger.log("Built files summary:", {
+			details: lines.join("\n"),
+		});
 	}
 }
 
@@ -103,14 +109,14 @@ export function reportRollupBundleSizes (logger: Logger, base: string, output: R
 		}
 	});
 
-	reportBundleSizes(logger, bundled, "JS", bgYellow().black);
+	reportBundleSizes(logger, bundled, yellow);
 }
 
 
 /**
  * Safely fetches the file size
  */
-function safelyFetchFileSize (filePath: string) : number|null
+export function safelyFetchFileSize (filePath: string) : number|null
 {
 	try
 	{
