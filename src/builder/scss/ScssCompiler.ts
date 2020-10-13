@@ -3,7 +3,7 @@ import postcss, {AcceptedPlugin, Result as PostCSSResult} from "postcss";
 import autoprefixer from "autoprefixer";
 import postCssReporter from "postcss-reporter";
 import Processor from 'postcss/lib/processor';
-import {blue, magenta, red} from 'kleur/colors';
+import {bgMagenta, blue, magenta, red} from 'kleur';
 import {Logger} from '../../lib/Logger';
 import path from 'path';
 import {ensureDir, remove, writeFile} from 'fs-extra';
@@ -11,6 +11,7 @@ import csso from "postcss-csso";
 import chokidar, {FSWatcher} from "chokidar";
 import {lint} from "stylelint";
 import {filterLintFilePaths} from '../../lib/array-filter';
+import {reportBundleSizes} from '../lib/reporter';
 
 
 export class ScssCompiler
@@ -240,6 +241,16 @@ export class ScssCompiler
 	 */
 	private async writeFiles (css: string, sourceMap: string) : Promise<unknown>
 	{
+		reportBundleSizes(
+			this.logger,
+			[{
+				name: path.basename(this.outPath),
+				size: css.length,
+			}],
+			"SCSS",
+			bgMagenta().black
+		)
+
 		await ensureDir(this.outDir);
 		return Promise.all([
 			writeFile(this.outPath, css),

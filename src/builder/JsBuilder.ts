@@ -9,6 +9,7 @@ import {Logger} from '../lib/Logger';
 import {blue, yellow} from 'kleur/colors';
 import {readFileSync} from 'fs-extra';
 import {writeFileSync} from 'fs';
+import {reportRollupBundleSizes} from './lib/reporter';
 
 export interface JsBuildConfig
 {
@@ -251,6 +252,7 @@ export class JsBuilder
 					if (!results.legacy)
 					{
 						this.logger.logWithDuration(`Finished building ${results.inputs}`, process.hrtime(this.timers[results.inputs]));
+						reportRollupBundleSizes(this.logger, path.join(cwd, buildConfig.jsBase, "modern"), results.output);
 					}
 				});
 
