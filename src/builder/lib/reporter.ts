@@ -1,14 +1,15 @@
 import {OutputAsset, OutputChunk, RollupOutput} from 'rollup';
 import path from 'path';
-import {blue, green, red, yellow, Color} from 'kleur';
+import {blue, green, red, yellow, Color, gray, magenta} from 'kleur';
 import {statSync} from "fs-extra";
 import prettyBytes from "pretty-bytes";
-import {gray} from 'kleur/colors';
+import {ScssCompilationResult} from '../scss/ScssCompiler';
 
 interface BundledFile
 {
 	name: string;
-	size: number|null;
+	size?: number|null;
+	failed?: boolean;
 	import?: boolean;
 }
 
@@ -30,7 +31,7 @@ function renderEntry (entry: BundledFile) : string
 	const fileName = blue(entry.name);
 	let size = gray("?");
 
-	if (null !== entry.size)
+	if (!entry.failed && null != entry.size)
 	{
 		let color = green;
 
@@ -44,6 +45,10 @@ function renderEntry (entry: BundledFile) : string
 		}
 
 		size = color(prettyBytes(entry.size));
+	}
+	else if (entry.failed)
+	{
+		size = red("failed");
 	}
 
 	return `${fileName} (${size})`;
@@ -81,6 +86,22 @@ export function formatBundleSizes (files: BundledFile[], headline: Color) : stri
 	}
 
 	return lines.join("\n");
+}
+
+export function formatScssBundleSizes (result: ScssCompilationResult[]) : string
+{
+	return formatBundleSizes(
+		result.map(compilation => {
+			return compilation.error !== undefined
+				? compilation
+				: {
+					name: compilation.name,
+					size: null,
+					failed: true,
+				};
+		}),
+		magenta
+	)
 }
 
 
