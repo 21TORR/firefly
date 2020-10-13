@@ -10,7 +10,8 @@ test("Run fixture: lint-issues", async t => {
 		t.regex(result.stdout, /Build failed after/, "global status is 'failed'");
 		t.regex(result.stdout, /SCSS Found linting issues/, "SCSS lint issues found");
 		t.regex(result.stdout, /JS Found linting issues/, "JS lint issues found");
-		t.regex(result.stdout, /\(SCSS failed, JS failed\)/, "Both sub tasks failed");
+		t.regex(result.stdout, /SCSS failed/, "SCSS sub tasks failed");
+		t.regex(result.stdout, /JS failed/, "JS sub tasks failed");
 
 		t.true(existsSync(join(path, "build/js/legacy/test.js")), "JS legacy build file exists");
 		t.true(existsSync(join(path, "build/js/modern/test.js")), "JS modern build file exists");
