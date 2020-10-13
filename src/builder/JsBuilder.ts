@@ -6,10 +6,10 @@ import hasha from "hasha";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {ESLint} from "eslint";
 import {Logger} from '../lib/Logger';
-import {blue, yellow} from 'kleur/colors';
+import {blue, yellow} from 'kleur';
 import {readFileSync} from 'fs-extra';
 import {writeFileSync} from 'fs';
-import {reportRollupBundleSizes} from './lib/reporter';
+import {formatRollupBundleSizes} from './lib/reporter';
 
 export interface JsBuildConfig
 {
@@ -198,7 +198,9 @@ export class JsBuilder
 
 					if (this.timers[inputs])
 					{
-						this.logger.logWithDuration(`Finished building ${inputs}`, process.hrtime(this.timers[inputs]));
+						this.logger.log(`Finished building ${inputs}`, {
+							duration: process.hrtime(this.timers[inputs]),
+						});
 						this.timers[inputs] = undefined;
 					}
 					else
@@ -251,8 +253,10 @@ export class JsBuilder
 
 					if (!results.legacy)
 					{
-						this.logger.logWithDuration(`Finished building ${results.inputs}`, process.hrtime(this.timers[results.inputs]));
-						reportRollupBundleSizes(this.logger, path.join(cwd, buildConfig.jsBase, "modern"), results.output);
+						this.logger.log(`Finished building ${results.inputs}`, {
+							duration: process.hrtime(this.timers[results.inputs]),
+							details: formatRollupBundleSizes(path.join(cwd, buildConfig.jsBase, "modern"), results.output),
+						});
 					}
 				});
 
@@ -303,14 +307,15 @@ export class JsBuilder
 
 		// Output the results
 		const formatter = await eslint.loadFormatter("stylish");
-		const output = formatter.format(results).trim();
+		const output = formatter.format(results);
 
 		if ("" !== output)
 		{
-			this.logger.log("Found linting issues:");
-
-			// output lint results, but replace absolute paths with their relative ones
-			console.log(output.replace(`${cwd}/`, ""));
+			this.logger.log("Found linting issues:", {
+				// output lint results, but replace absolute paths with their relative ones
+				details: output.replace(`${cwd}/`, ""),
+				detailsPadding: false,
+			});
 		}
 
 		// return whether all were ok, or if there are any entries that have errors / warnings

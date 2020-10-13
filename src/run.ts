@@ -51,7 +51,9 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 				// if we are exiting a watcher, just return neutral
 				if (config.watch)
 				{
-					logger.logWithDuration(`Ended watching`, process.hrtime(start));
+					logger.log(`Ended watching`, {
+						duration: process.hrtime(start),
+					});
 					process.exit(0);
 				}
 
@@ -65,9 +67,10 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 					return succeeded ? green("succeeded") : red("failed")
 				};
 
-				logger.logWithDuration(`Build ${status(allOk)}`, process.hrtime(start));
-				logger.log(`(${magenta("SCSS")} ${status(scssResult)}, ${yellow("JS")} ${status(jsResult)})`);
-
+				logger.log(`Build ${status(allOk)}`, {
+					duration: process.hrtime(start),
+					details: `${magenta("SCSS")} ${status(scssResult)}\n${yellow("JS")} ${status(jsResult)}`,
+				});
 				process.exit(allOk ? 0 : 1);
 			})
 			.catch((...args) => {

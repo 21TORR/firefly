@@ -1,7 +1,6 @@
 import {OutputAsset, OutputChunk, RollupOutput} from 'rollup';
 import path from 'path';
-import {Logger} from '../../lib/Logger';
-import {bgYellow, blue, green, red, yellow, Color} from 'kleur';
+import {blue, green, red, yellow, Color} from 'kleur';
 import {statSync} from "fs-extra";
 import prettyBytes from "pretty-bytes";
 import {gray} from 'kleur/colors';
@@ -54,40 +53,41 @@ function renderEntry (entry: BundledFile) : string
 /**
  * Reports the bundle sizes of the given files
  */
-export function reportBundleSizes (logger: Logger, files: BundledFile[], headlinePrefix: string, headline: Color) : void
+export function formatBundleSizes (files: BundledFile[], headline: Color) : string
 {
 	const entries: BundledFile[] = [];
 	const imports: BundledFile[] = [];
+	let lines: string[] = [];
 
 	files.forEach(file =>
 	{
 		(file.import ? imports : entries).push(file);
 	})
 
-	logger.log("");
-
 	// first report entries
 	if (entries.length)
 	{
-		logger.log(headline(`${headlinePrefix} Entries`));
-		entries.forEach(entry => logger.log(`  • ${renderEntry(entry)}`));
-		logger.log("");
+		lines.push(headline(`Entries`));
+		lines = lines.concat(entries.map(entry => `  • ${renderEntry(entry)}`));
+		lines.push("");
 	}
 
 	// then report imports
 	if (imports.length)
 	{
-		logger.log(headline(`${headlinePrefix} Dynamic Imports`));
-		imports.forEach(entry => logger.log(`  • ${renderEntry(entry)}`));
-		logger.log("");
+		lines.push(headline(`Dynamic Imports`));
+		lines = lines.concat(imports.map(entry => `  • ${renderEntry(entry)}`));
+		lines.push("");
 	}
+
+	return lines.join("\n");
 }
 
 
 /**
  * Reports the rollup bundle sizes
  */
-export function reportRollupBundleSizes (logger: Logger, base: string, output: RollupOutput) : void
+export function formatRollupBundleSizes (base: string, output: RollupOutput) : string
 {
 	const bundled: BundledFile[] = [];
 
@@ -103,14 +103,14 @@ export function reportRollupBundleSizes (logger: Logger, base: string, output: R
 		}
 	});
 
-	reportBundleSizes(logger, bundled, "JS", bgYellow().black);
+	return formatBundleSizes(bundled, yellow);
 }
 
 
 /**
  * Safely fetches the file size
  */
-function safelyFetchFileSize (filePath: string) : number|null
+export function safelyFetchFileSize (filePath: string) : number|null
 {
 	try
 	{
