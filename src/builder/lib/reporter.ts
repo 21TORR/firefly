@@ -92,7 +92,7 @@ export function formatScssBundleSizes (result: ScssCompilationResult[]) : string
 {
 	return formatBundleSizes(
 		result.map(compilation => {
-			return compilation.error !== undefined
+			return !compilation.error
 				? compilation
 				: {
 					name: compilation.name,
