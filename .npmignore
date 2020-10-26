@@ -1,0 +1,14 @@
+/.github
+/.idea
+/.vscode
+/node_modules
+/package-lock.json
+/pnpm-lock.yaml
+/tests
+/tsconfig.json
+
+# ignore all .ts when publishing
+*.ts
+*.tsx
+!*.d.ts
+!/init/*.js
