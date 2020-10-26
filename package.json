@@ -85,5 +85,8 @@
 		"require": [
 			"esm"
 		]
+	},
+	"np": {
+		"branch": "1.x"
 	}
 }
