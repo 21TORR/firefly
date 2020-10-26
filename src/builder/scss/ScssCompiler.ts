@@ -85,10 +85,19 @@ export class ScssCompiler
 		}
 		catch (e)
 		{
+			const includedFiles = [this.filePath];
+
+			if (e.file && e.file !== this.filePath)
+			{
+				// add file with the error to watcher, so that
+				// fixing the error actually restarts the build
+				includedFiles.push(e.file);
+			}
+
 			return {
 				name: this.basename,
 				// at least include the file itself in the included files
-				includedFiles: [this.filePath],
+				includedFiles,
 				error: e,
 			}
 		}
