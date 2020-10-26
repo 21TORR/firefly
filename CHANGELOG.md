@@ -1,3 +1,9 @@
+1.0.2
+=====
+
+*   (bug) Removed output clearing for now, as it seems to have some issues.
+
+
 1.0.1
 =====
 
