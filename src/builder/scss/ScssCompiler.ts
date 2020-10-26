@@ -6,7 +6,7 @@ import Processor from 'postcss/lib/processor';
 import {blue, red} from 'kleur';
 import {Logger} from '../../lib/Logger';
 import path from 'path';
-import {ensureDir, remove, writeFile} from 'fs-extra';
+import {ensureDir, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
 import {resolveScssImport} from './resolver';
 
@@ -64,9 +64,6 @@ export class ScssCompiler
 	{
 		try
 		{
-			// remove output dir
-			await remove(this.outDir);
-
 			// build SCSS
 			const nodeSassResult: Result = await this.runNodeSass();
 			const compiledFiles = nodeSassResult.stats.includedFiles;

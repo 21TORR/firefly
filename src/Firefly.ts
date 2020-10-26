@@ -4,7 +4,6 @@ import {terser} from 'rollup-plugin-terser';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import {OutputOptions, RollupOptions} from "rollup";
 import {FireflyTypes} from "./@types/firefly";
-import del from 'rollup-plugin-delete';
 import commonjs from "@rollup/plugin-commonjs";
 import replace from '@rollup/plugin-replace';
 import babel from '@rollup/plugin-babel';
@@ -191,11 +190,6 @@ export class Firefly
                 "jquery",
             ],
             plugins: [
-                del({
-                    targets: [
-                        `${this.outputPath}/js`,
-                    ],
-                }),
                 replace({
                     __DEBUG__: JSON.stringify(runConfig.debug),
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
