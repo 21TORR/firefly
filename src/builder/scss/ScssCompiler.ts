@@ -1,4 +1,4 @@
-import sass, {Result} from "node-sass";
+import sass, {Result} from "sass";
 import postcss, {AcceptedPlugin, Result as PostCSSResult} from "postcss";
 import autoprefixer from "autoprefixer";
 import postCssReporter from "postcss-reporter";
@@ -65,7 +65,7 @@ export class ScssCompiler
 		try
 		{
 			// build SCSS
-			const nodeSassResult: Result = await this.runNodeSass();
+			const nodeSassResult = this.runSass();
 			const compiledFiles = nodeSassResult.stats.includedFiles;
 
 			// run postcss
@@ -104,30 +104,17 @@ export class ScssCompiler
 	/**
 	 * Runs node sass on the file
 	 */
-	private async runNodeSass () : Promise<Result>
+	private runSass () : Result
 	{
 		try
 		{
-			return await new Promise((resolve, reject) => {
-				sass.render(
-					{
-						file: this.filePath,
-						outFile: this.outPath,
-						outputStyle: 'expanded',
-						sourceMap: true,
-						includePaths: [this.base],
-						sourceComments: this.debug,
-						importer: resolveScssImport,
-					},
-					(err, result) => {
-						if (err)
-						{
-							return reject(err);
-						}
-
-						return resolve(result);
-					}
-				);
+			return sass.renderSync({
+				file: this.filePath,
+				outFile: this.outPath,
+				outputStyle: 'expanded',
+				sourceMap: true,
+				includePaths: [this.base],
+				importer: resolveScssImport,
 			});
 		}
 		catch (e)
@@ -153,7 +140,7 @@ export class ScssCompiler
 				map: {
 					annotation: this.debug,
 					inline: false,
-					prev: css.map.toString(),
+					prev: css.map!.toString(),
 				},
 			});
 		}

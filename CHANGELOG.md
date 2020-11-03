@@ -1,3 +1,9 @@
+1.0.3 (unreleased)
+=====
+
++   (improvement) Use `sass` instead of the deprecated `node-sass`.
+
+
 1.0.2
 =====
 

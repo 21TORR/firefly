@@ -1,8 +1,8 @@
-import {ImporterReturnType} from 'node-sass';
+import {ImporterReturnType} from 'sass';
 import * as path from 'path';
-import {readFile} from 'fs-extra';
+import {readFileSync} from 'fs-extra';
 
-export function resolveScssImport (url: string, prev: string, done: (data: ImporterReturnType) => void): void
+export function resolveScssImport (url: string, prev: string): ImporterReturnType
 {
 	if ("~" === url[0])
 	{
@@ -19,11 +19,13 @@ export function resolveScssImport (url: string, prev: string, done: (data: Impor
 
 				if (".scss" !== path.extname(resolvedPath))
 				{
-					readFile(resolvedPath, (error, data) => done({file: resolvedPath, contents: data.toString()}));
-					return;
+					return {
+						file: resolvedPath,
+						contents: readFileSync(resolvedPath).toString(),
+					};
 				}
 
-				return done({file: resolvedPath});
+				return {file: resolvedPath};
 			}
 			catch
 			{
@@ -31,13 +33,12 @@ export function resolveScssImport (url: string, prev: string, done: (data: Impor
 			}
 		}
 
-		done(new Error(`Can't resolve '${url}'`));
-		return;
+		return new Error(`Can't resolve '${url}'`);
 	}
 
-	done({
+	return {
 		file: url,
-	});
+	};
 }
 
 /**
