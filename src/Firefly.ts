@@ -170,7 +170,7 @@ export class Firefly
                 : "[name].js",
             compact: true,
             plugins: [],
-            sourcemap: runConfig.debug,
+            sourcemap: true,
             globals: {
                 jquery: 'jQuery',
                 jquery_: '$',
