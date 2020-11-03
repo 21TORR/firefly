@@ -2,6 +2,8 @@
 =====
 
 +   (improvement) Use `sass` instead of the deprecated `node-sass`.
+*   (bug) Always generate sourcemaps in Rollup.
+*   (improvement) Clear output directories before building.
 
 
 1.0.2

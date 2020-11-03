@@ -1,6 +1,6 @@
 import {RollupOptions, rollup, watch, OutputChunk, OutputAsset, RollupOutput, RollupWatcherEvent, InputOption} from "rollup";
 import {FireflyTypes} from "../@types/firefly";
-import {writeJSONSync, ensureDirSync} from "fs-extra";
+import {writeJSONSync, ensureDirSync, remove} from "fs-extra";
 import * as path from "path";
 import hasha from "hasha";
 import {filterLintFilePaths} from '../lib/array-filter';
@@ -176,6 +176,10 @@ export class JsBuilder
 		{
 			return null;
 		}
+
+		// clear output dir
+		this.logger.log(`Removing the output dir at ${yellow(buildConfig.jsBase)}`);
+		await remove(path.join(cwd, buildConfig.jsBase));
 
 		if (this.runConfig.watch)
 		{
