@@ -2,11 +2,12 @@ import {FireflyTypes} from '../@types/firefly';
 import path from 'path';
 import {ScssCompilationResult, ScssCompiler} from './scss/ScssCompiler';
 import chokidar, {FSWatcher} from "chokidar";
-import {blue, magenta} from 'kleur';
+import {blue, magenta, yellow} from 'kleur';
 import {Logger} from '../lib/Logger';
 import {lint} from "stylelint";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {formatScssBundleSizes} from './lib/reporter';
+import {remove} from 'fs-extra';
 
 
 export interface ScssBuildConfig
@@ -30,6 +31,7 @@ export class ScssBuilder
     private readonly logger: Logger;
     private readonly stylelintConfigFile: string;
     private watcherResolve: (() => void)|undefined;
+    private readonly outputPath?: string;
 
     /**
      */
@@ -44,6 +46,8 @@ export class ScssBuilder
 
         if (buildConfig)
         {
+            this.outputPath = buildConfig.output;
+
             for (const name in buildConfig.entries)
             {
                 const filePath = path.join(buildConfig.base, buildConfig.entries[name]);
@@ -64,10 +68,14 @@ export class ScssBuilder
      */
     public async run () : Promise<boolean|null>
     {
-        if (!Object.keys(this.compilers).length)
+        if (!Object.keys(this.compilers).length || !this.outputPath)
         {
             return null;
         }
+
+        // clear output dir
+        this.logger.log(`Removing the output dir at ${yellow(this.outputPath)}`);
+        await remove(this.outputPath);
 
         // start by first compiling all
         await this.compileEntries(Object.keys(this.compilers));
