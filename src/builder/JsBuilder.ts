@@ -144,8 +144,13 @@ function isEventForModernBuild (event: RollupWatcherEvent & {output: readonly st
 	return -1 === firstEntry.indexOf("legacy");
 }
 
-function formatInputFiles (input: InputOption): string
+function formatInputFiles (input?: InputOption): string
 {
+	if (!input)
+	{
+		return "";
+	}
+
 	return Object.keys(input)
 		.map(filePath => blue(path.basename(filePath)))
 		.join(", ");

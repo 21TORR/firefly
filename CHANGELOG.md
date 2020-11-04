@@ -5,6 +5,7 @@
 *   (bug) Always generate sourcemaps in Rollup.
 *   (improvement) Clear output directories before building.
 *   (feature) Allow loading JSON files in Rollup.
+*   (bug) Avoid type issues in `@rollup/plugin-typescript`.
 
 
 1.0.2

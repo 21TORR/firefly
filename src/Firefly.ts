@@ -7,7 +7,9 @@ import {FireflyTypes} from "./@types/firefly";
 import commonjs from "@rollup/plugin-commonjs";
 import replace from '@rollup/plugin-replace';
 import babel from '@rollup/plugin-babel';
-import typescript from '@rollup/plugin-typescript';
+// @todo properly import here, as soon as type errors are fixed
+// @ts-ignore ignore TS here for now, as they have type issues
+const typescript = require('@rollup/plugin-typescript');
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
