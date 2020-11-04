@@ -11,6 +11,7 @@ import babel from '@rollup/plugin-babel';
 // @ts-ignore ignore TS here for now, as they have type issues
 const typescript = require('@rollup/plugin-typescript');
 import builtins from 'rollup-plugin-node-builtins';
+import nodeGlobals from 'rollup-plugin-node-globals';
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
@@ -205,6 +206,7 @@ export class Firefly
                 }),
                 externalGlobals(this.externals),
                 builtins(),
+                nodeGlobals(),
                 json(),
                 this.hasTypeScriptEntry() ? typescript({
                     allowSyntheticDefaultImports: true,
