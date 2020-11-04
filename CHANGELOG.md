@@ -1,3 +1,9 @@
+1.2.0
+=====
+
+*   (feature) Automatically mock some of node.js internal components.
+
+
 1.1.0
 =====
 
