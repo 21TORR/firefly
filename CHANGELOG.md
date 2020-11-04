@@ -1,3 +1,9 @@
+1.2.1
+=====
+
+*   (bug) Properly mock more of node.js internal components.
+
+
 1.2.0
 =====
 
