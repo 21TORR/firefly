@@ -11,6 +11,7 @@ import typescript from '@rollup/plugin-typescript';
 import {getExcludePattern} from './lib/path-helpers';
 import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
+import json from '@rollup/plugin-json';
 import * as path from 'path';
 
 type Entries = Record<string, string>;
@@ -200,6 +201,7 @@ export class Firefly
                     sourceMap: true,
                 }),
                 externalGlobals(this.externals),
+                json(),
                 this.hasTypeScriptEntry() ? typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,
