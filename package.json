@@ -7,7 +7,7 @@
 		"type": "git",
 		"url": "https://github.com/21TORR/firefly.git"
 	},
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"main": "src/Firefly.js",
 	"bin": {
 		"firefly": "bin/cli.js"
