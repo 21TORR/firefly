@@ -1,4 +1,4 @@
-1.1.0 (unreleased)
+1.1.0
 =====
 
 +   (improvement) Use `sass` instead of the deprecated `node-sass`.
