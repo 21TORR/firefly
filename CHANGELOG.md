@@ -1,3 +1,9 @@
+1.2.2
+=====
+
+*   (bug) Support `index` files in `node_modules` imports in SCSS.
+
+
 1.2.1
 =====
 
