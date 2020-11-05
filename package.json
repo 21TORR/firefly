@@ -16,7 +16,7 @@
 		"build": "tsc --noEmitOnError --noErrorTruncation --listEmittedFiles --pretty --noUnusedLocals && chmod +x bin/cli.js",
 		"dev": "tsc --noEmitOnError --noErrorTruncation --listEmittedFiles --pretty --watch",
 		"prepublishOnly": "npm run build",
-		"test": "npm run build && ava"
+		"test": "npm run build && ava -v"
 	},
 	"dependencies": {
 		"@babel/plugin-proposal-class-properties": "^7.12.1",
@@ -66,6 +66,7 @@
 		"core-js": "^3.6.5"
 	},
 	"devDependencies": {
+		"@21torr/atlantis": "^0.0.1",
 		"@babel/core": "^7.12.3",
 		"@types/eslint": "^7.2.4",
 		"@types/fs-extra": "^9.0.2",

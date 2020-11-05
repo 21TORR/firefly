@@ -59,6 +59,8 @@ function generatePossibleNames (fileName: string) : string[]
 	return [
 		`_${fileName}.scss`,
 		`${fileName}.scss`,
+		`${fileName}/_index.scss`,
+		`${fileName}/index.scss`,
 		`_${fileName}.css`,
 		`${fileName}.css`,
 		fileName,

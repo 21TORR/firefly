@@ -1,0 +1,9 @@
+// try directory
+@use "~@21torr/atlantis/reset";
+
+// try file
+@use "~@21torr/atlantis/mixins/size";
+
+a {
+    @include size.square(2rem);
+}
