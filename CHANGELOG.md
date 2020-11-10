@@ -1,3 +1,9 @@
+1.2.4
+=====
+
+*   (improvement) Allow `@internal` in JSDoc.
+
+
 1.2.3
 =====
 
