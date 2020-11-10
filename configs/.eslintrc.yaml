@@ -55,7 +55,9 @@ rules:
     'jsdoc/check-alignment': warn
     'jsdoc/check-param-names': error
     'jsdoc/check-syntax': warn
-    'jsdoc/check-tag-names': warn
+    'jsdoc/check-tag-names':
+        - warn
+        - definedTags: ["internal"]
     'jsdoc/check-types': warn
     'jsdoc/newline-after-description': warn
     'jsdoc/no-types': warn
