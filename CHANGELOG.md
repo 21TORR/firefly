@@ -1,3 +1,9 @@
+1.2.3
+=====
+
+*   (improvement) Disable a lot of the JSDoc related ESLint rules.
+
+
 1.2.2
 =====
 
