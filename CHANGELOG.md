@@ -1,3 +1,9 @@
+1.2.5
+=====
+
+*   (improvement) Use recommended ESLint config for TypeScript.
+
+
 1.2.4
 =====
 
