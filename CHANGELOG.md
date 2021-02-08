@@ -1,3 +1,9 @@
+1.2.6
+=====
+
+*   (improvement) Make linting more lenient.
+
+
 1.2.5
 =====
 
