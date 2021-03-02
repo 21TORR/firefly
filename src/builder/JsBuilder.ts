@@ -162,7 +162,7 @@ function formatInputFiles (input?: InputOption): string
  */
 export class JsBuilder
 {
-	private watcherResolve: (() => void)|undefined;
+	private watcherResolve: ((value: boolean) => void)|undefined;
 	private logger: Logger;
 	private timers: Record<string, [number, number]|undefined> = {};
 
@@ -341,7 +341,7 @@ export class JsBuilder
 		if (this.watcherResolve)
 		{
 			this.logger.log("Stopped watching all JS bundles");
-			this.watcherResolve();
+			this.watcherResolve(true);
 			this.watcherResolve = undefined;
 		}
 	}

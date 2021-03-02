@@ -30,7 +30,7 @@ export class ScssBuilder
     private watcher: FSWatcher|undefined;
     private readonly logger: Logger;
     private readonly stylelintConfigFile: string;
-    private watcherResolve: (() => void)|undefined;
+    private watcherResolve: ((value: unknown) => void)|undefined;
     private readonly outputPath?: string;
 
     /**
@@ -236,7 +236,7 @@ export class ScssBuilder
         if (this.watcherResolve)
         {
             this.logger.log(`Stopped watching`);
-            this.watcherResolve();
+            this.watcherResolve(true);
             this.watcherResolve = undefined;
             this.lastCompilationResults = {};
         }

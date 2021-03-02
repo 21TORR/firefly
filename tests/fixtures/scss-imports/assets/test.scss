@@ -5,5 +5,5 @@
 @use "~@21torr/atlantis/mixins/size";
 
 a {
-    @include size.square(2rem);
+	@include size.square(2rem);
 }
