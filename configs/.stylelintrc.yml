@@ -147,7 +147,7 @@ rules:
     comment-no-empty: true
 
     # General / Sheet
-    indentation: 4
+    indentation: tab
     max-empty-lines: 2
     max-nesting-depth: 4
     no-duplicate-selectors: true
