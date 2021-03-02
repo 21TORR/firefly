@@ -104,6 +104,7 @@ rules:
                 - em
                 - html
                 - i
+                - iframe
                 - img
                 - li
                 - mark
