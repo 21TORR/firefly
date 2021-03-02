@@ -14,7 +14,7 @@ export function buildBabelConfig (isModern: boolean) : Pick<RollupBabelInputPlug
 				spec: false,
 				useBuiltIns: "usage",
 				corejs: 3,
-				targets: isModern ? BROWSERSLIST_MODERN: BROWSERSLIST_LEGACY,
+				targets: isModern ? BROWSERSLIST_MODERN : BROWSERSLIST_LEGACY,
 			}],
 		],
 		plugins: [
