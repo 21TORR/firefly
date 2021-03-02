@@ -195,7 +195,7 @@ export class ScssBuilder
     /**
      * Lints the given files
      *
-     * @return if the build error
+     * @return {boolean} if the build errored (or has lint errors)
      */
     private async lintFiles (filePaths: string[]) : Promise<boolean>
     {
