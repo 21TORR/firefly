@@ -30,7 +30,7 @@ export class ScssBuilder
     private watcher: FSWatcher|undefined;
     private readonly logger: Logger;
     private readonly stylelintConfigFile: string;
-    private watcherResolve: (() => void)|undefined;
+    private watcherResolve: ((value: unknown) => void)|undefined;
     private readonly outputPath?: string;
 
     /**
@@ -195,7 +195,7 @@ export class ScssBuilder
     /**
      * Lints the given files
      *
-     * @return if the build error
+     * @return {boolean} if the build errored (or has lint errors)
      */
     private async lintFiles (filePaths: string[]) : Promise<boolean>
     {
@@ -236,7 +236,7 @@ export class ScssBuilder
         if (this.watcherResolve)
         {
             this.logger.log(`Stopped watching`);
-            this.watcherResolve();
+            this.watcherResolve(true);
             this.watcherResolve = undefined;
             this.lastCompilationResults = {};
         }
