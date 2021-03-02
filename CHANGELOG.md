@@ -1,3 +1,9 @@
+1.2.8
+=====
+
+*   (improvement) Fix deprecation in Rollup.
+
+
 1.2.7
 =====
 

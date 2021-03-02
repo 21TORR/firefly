@@ -196,8 +196,11 @@ export class Firefly
             ],
             plugins: [
                 replace({
-                    __DEBUG__: JSON.stringify(runConfig.debug),
-                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    preventAssignment: true,
+                    values: {
+                        __DEBUG__: JSON.stringify(runConfig.debug),
+                        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    },
                 }),
                 nodeResolve({extensions}),
                 commonjs({
