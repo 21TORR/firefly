@@ -2,6 +2,8 @@
 =====
 
 *   (improvement) Make linting more lenient.
+*   (bug) Correctly use tabs.
+*   (improvement) Bump dependencies.
 
 
 1.2.5
