@@ -60,9 +60,7 @@ function writeLegacyBaseFile (basePath: string, hashFileNames: boolean): string
 {
 	return writeBaseFile(
 		[
-			// load the Promise polyfill before the system.js core, as it is using promises
 			require.resolve("promise-polyfill/dist/polyfill.min.js"),
-			require.resolve("systemjs/dist/s.min.js"),
 		],
 		"legacy",
 		basePath,
@@ -237,7 +235,7 @@ export class JsBuilder
 		return Promise.all(buildConfig.configs.map(async config =>
 		{
 			const output = config.output![0];
-			const legacy = "system" === output.format;
+			const legacy = "es" !== output.format;
 			const inputs = formatInputFiles(config.input as InputOption);
 
 			if (!legacy)

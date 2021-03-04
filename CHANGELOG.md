@@ -1,3 +1,9 @@
+1.2.9
+=====
+
+*   (bug) Build IE JS as IIFE instead of SystemJS. 
+
+
 1.2.8
 =====
 

@@ -244,7 +244,7 @@ export class Firefly
                 {
                     ...output,
                     dir: `${this.outputPath}/js/${isModern ? "modern" : "legacy"}`,
-                    format: isModern ? "es" : "system",
+                    format: isModern ? "es" : "iife",
                 },
             ],
         };
