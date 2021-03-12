@@ -115,21 +115,21 @@ function writeDependencies (
 			}
 
 			const type = results.legacy ? "legacy" : "modern";
-			const name = output.name;
+			const name = `${output.name}.js`;
 
-			if (!manifest[type])
+			if (!manifest[name])
 			{
-				manifest[type] = {};
+				manifest[name] = {};
 			}
 
-			if (!manifest[type][name])
+			if (!manifest[name][type])
 			{
-				manifest[type][name] = [
+				manifest[name][type] = [
 					results.legacy ? legacyBaseFile : modernBaseFile
 				];
 			}
 
-			manifest[type][name].push(`${type}/${name}/${output.fileName}`);
+			manifest[name][type].push(`${type}/${output.fileName}`);
 
 			writeJSONSync(`${basePath}/_dependencies.json`, manifest);
 		});
