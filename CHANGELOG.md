@@ -1,5 +1,5 @@
-1.3.0 (unreleased)
-=====
+1.2.10
+======
 
 *   (bug) Fixed invalid paths in `_dependencies.json`.
 
