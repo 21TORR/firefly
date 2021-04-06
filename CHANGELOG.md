@@ -1,3 +1,10 @@
+1.2.11
+======
+
+*   (bug) Fix some invalid Stylelint rules.
+*   (improvement) Improve size reporting for JS + CSS.
+
+
 1.2.10
 ======
 

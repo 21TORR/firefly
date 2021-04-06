@@ -26,7 +26,11 @@ function isOutputChunk (output: OutputChunk | OutputAsset): output is OutputChun
 /**
  * Renders a single compiled entry
  */
-function renderEntry (entry: BundledFile) : string
+function renderEntry (
+	entry: BundledFile,
+	maxBundleSizeSmall: number,
+	maxBundleSizeMedium: number,
+) : string
 {
 	const fileName = blue(entry.name);
 	let size = gray("?");
@@ -35,11 +39,11 @@ function renderEntry (entry: BundledFile) : string
 	{
 		let color = green;
 
-		if (entry.size > 250_000)
+		if (entry.size > maxBundleSizeMedium)
 		{
 			color = red;
 		}
-		else if (entry.size > 50_000)
+		else if (entry.size > maxBundleSizeSmall)
 		{
 			color = yellow;
 		}
@@ -58,7 +62,12 @@ function renderEntry (entry: BundledFile) : string
 /**
  * Reports the bundle sizes of the given files
  */
-export function formatBundleSizes (files: BundledFile[], headline: Color) : string
+export function formatBundleSizes (
+	files: BundledFile[],
+	headline: Color,
+	maxBundleSizeSmall: number,
+	maxBundleSizeMedium: number,
+	) : string
 {
 	const entries: BundledFile[] = [];
 	const imports: BundledFile[] = [];
@@ -73,7 +82,7 @@ export function formatBundleSizes (files: BundledFile[], headline: Color) : stri
 	if (entries.length)
 	{
 		lines.push(headline(`Entries`));
-		lines = lines.concat(entries.map(entry => `  • ${renderEntry(entry)}`));
+		lines = lines.concat(entries.map(entry => `  • ${renderEntry(entry, maxBundleSizeSmall, maxBundleSizeMedium)}`));
 		lines.push("");
 	}
 
@@ -81,7 +90,7 @@ export function formatBundleSizes (files: BundledFile[], headline: Color) : stri
 	if (imports.length)
 	{
 		lines.push(headline(`Dynamic Imports`));
-		lines = lines.concat(imports.map(entry => `  • ${renderEntry(entry)}`));
+		lines = lines.concat(imports.map(entry => `  • ${renderEntry(entry, maxBundleSizeSmall, maxBundleSizeMedium)}`));
 		lines.push("");
 	}
 
@@ -100,7 +109,9 @@ export function formatScssBundleSizes (result: ScssCompilationResult[]) : string
 					failed: true,
 				};
 		}),
-		magenta
+		magenta,
+		100_000,
+		200_000
 	)
 }
 
@@ -124,7 +135,7 @@ export function formatRollupBundleSizes (base: string, output: RollupOutput) : s
 		}
 	});
 
-	return formatBundleSizes(bundled, yellow);
+	return formatBundleSizes(bundled, yellow, 150_000, 300_00);
 }
 
 
