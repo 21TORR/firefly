@@ -1,3 +1,9 @@
+1.2.11
+======
+
+*   (bug) Fix some invalid Stylelint rules.
+
+
 1.2.10
 ======
 
