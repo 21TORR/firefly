@@ -1,3 +1,9 @@
+1.2.12
+======
+
+*   (improvement) Fixed ESLint rules.
+
+
 1.2.11
 ======
 

@@ -38,9 +38,7 @@ extends:
     - 'eslint:recommended'
     - 'plugin:@typescript-eslint/eslint-recommended'
     - 'plugin:@typescript-eslint/recommended'
-    - 'plugin:react/recommended'
     - 'plugin:react-hooks/recommended'
-    - 'plugin:jsdoc/recommended'
 
 rules:
     indent:
@@ -53,6 +51,7 @@ rules:
         - error
         - always
 
+
     # JSDoc
     'jsdoc/check-alignment': warn
     'jsdoc/check-param-names': error
@@ -63,18 +62,61 @@ rules:
     'jsdoc/check-types': warn
     'jsdoc/newline-after-description': warn
     'jsdoc/no-types': warn
-    'jsdoc/require-jsdoc': off
-    'jsdoc/require-param-name': off
-    'jsdoc/require-param': off
-    'jsdoc/require-param-description': off
-    'jsdoc/require-param-type': off
-    'jsdoc/require-returns': off
     'jsdoc/require-returns-check': warn
-    'jsdoc/require-returns-description': off
-    'jsdoc/require-returns-type': off
     'jsdoc/valid-types': warn
 
     # TypeScript
-    '@typescript-eslint/explicit-module-boundary-types': off
     '@typescript-eslint/no-explicit-any': off
     '@typescript-eslint/no-non-null-assertion': off
+
+    # React
+    'react/button-has-type': error
+    'react/jsx-closing-bracket-location': warn
+    'react/jsx-closing-tag-location': warn
+    'react/jsx-equals-spacing':
+        - warn
+        - "never"
+    'react/jsx-filename-extension':
+        - error
+        - extensions: [".jsx", ".tsx"]
+    'react/jsx-first-prop-new-line': warn
+    'react/jsx-indent':
+        - warn
+        - tab
+    'react/jsx-indent-props':
+        - warn
+        - tab
+    'react/jsx-no-comment-textnodes': warn
+    'react/jsx-no-duplicate-props': error
+    'react/jsx-no-script-url': warn
+    'react/jsx-no-target-blank': warn
+    'react/jsx-no-undef': error
+    'react/jsx-no-useless-fragment': warn
+    'react/jsx-pascal-case': error
+    'react/jsx-props-no-multi-spaces': warn
+    'react/jsx-wrap-multilines': warn
+    'react/no-access-state-in-setstate': error
+    'react/no-array-index-key': error
+    'react/no-children-prop': warn
+    'react/no-danger-with-children': error
+    'react/no-did-mount-set-state': error
+    'react/no-did-update-set-state': error
+    'react/no-direct-mutation-state': error
+    'react/no-is-mounted': error
+    'react/no-render-return-value': error
+    'react/no-string-refs': error
+    'react/no-this-in-sfc': error
+    'react/no-unescaped-entities': warn
+    'react/no-unknown-property': warn
+    'react/no-unstable-nested-components': error
+    'react/no-will-update-set-state': error
+    'react/prefer-es6-class':
+        - error
+        - always
+    'react/prefer-read-only-props': error
+    'react/react-in-jsx-scope': error
+    'react/require-render-return': warn
+    'react/self-closing-comp': warn
+    'react/void-dom-elements-no-children': error
+    'react/jsx-uses-react': error
+        'react/jsx-uses-vars': error
