@@ -58,14 +58,14 @@ rules:
     'jsdoc/check-syntax': warn
     'jsdoc/check-tag-names':
         - warn
-        - definedTags: ["internal"]
+        -   definedTags: ["internal"]
     'jsdoc/check-types': warn
     'jsdoc/newline-after-description': warn
-    'jsdoc/no-types': warn
     'jsdoc/require-returns-check': warn
     'jsdoc/valid-types': warn
 
     # TypeScript
+    '@typescript-eslint/explicit-module-boundary-types': off
     '@typescript-eslint/no-explicit-any': off
     '@typescript-eslint/no-non-null-assertion': off
 
@@ -78,7 +78,7 @@ rules:
         - "never"
     'react/jsx-filename-extension':
         - error
-        - extensions: [".jsx", ".tsx"]
+        -   extensions: [".jsx", ".tsx"]
     'react/jsx-first-prop-new-line': warn
     'react/jsx-indent':
         - warn
@@ -107,7 +107,9 @@ rules:
     'react/no-string-refs': error
     'react/no-this-in-sfc': error
     'react/no-unescaped-entities': warn
-    'react/no-unknown-property': warn
+    'react/no-unknown-property':
+        - warn
+        - ignore: ["class"]
     'react/no-unstable-nested-components': error
     'react/no-will-update-set-state': error
     'react/prefer-es6-class':
@@ -119,4 +121,4 @@ rules:
     'react/self-closing-comp': warn
     'react/void-dom-elements-no-children': error
     'react/jsx-uses-react': error
-        'react/jsx-uses-vars': error
+    'react/jsx-uses-vars': error
