@@ -2,6 +2,7 @@
 =====
 
 *   (bug) Properly write `_dependencies.json` if anything changes.
+*   (bug) Remove old builds in SCSS watcher.
 
 
 2.0.0
