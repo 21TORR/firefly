@@ -2,6 +2,7 @@
 ======
 
 *   (improvement) Explicitly pass `cwd` to the sass resolver, so that it works even if Firefly is installed via symlink.
+*   (improvement) Use explicit `DependencyMap`, to be able to iteratively update the dependency map.
 
 
 1.2.12
