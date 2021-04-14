@@ -28,10 +28,8 @@ export class DependenciesMap
 	 */
 	public set (file: string, dependencies: string[], type?: string) : void
 	{
-		if (
-			(type && Array.isArray(this.dependencies[file]))
-			|| (!type && !Array.isArray(this.dependencies[file]))
-		)
+		// if there is already a
+		if (!this.isValidEntry(file, type))
 		{
 			throw new Error("Can't merge typed & untyped dependencies");
 		}
@@ -52,5 +50,22 @@ export class DependenciesMap
 		writeJSONSync(this.filePath, this.dependencies, {
 			spaces: '\t',
 		});
+	}
+
+	/**
+	 * Returns, whether the given file/type combination is valid
+	 */
+	private isValidEntry (file: string, type?: string) : boolean
+	{
+		// if there is no entry yet, everything is valid
+		if (!this.dependencies[file])
+		{
+			return true;
+		}
+
+		const hasType = !!type;
+		const shouldHaveType = !Array.isArray(this.dependencies[file]);
+
+		return hasType === shouldHaveType;
 	}
 }
