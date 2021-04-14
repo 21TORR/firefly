@@ -6,12 +6,13 @@ import Processor from 'postcss/lib/processor';
 import {blue, red} from 'kleur';
 import {Logger} from '../../lib/Logger';
 import path from 'path';
-import {ensureDir, writeFile} from 'fs-extra';
+import {ensureDir, removeSync, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
 import {resolveScssImport} from './resolver';
 import {DependenciesMap} from '../DependenciesMap';
 import hasha from 'hasha';
 import escapeStringRegexp from 'escape-string-regexp';
+import glob from "glob";
 
 
 export interface ScssCompilationResult
@@ -71,6 +72,9 @@ export class ScssCompiler
 	{
 		try
 		{
+			// clear previous builds
+			await this.clearPreviousBuilds();
+
 			// build SCSS
 			const nodeSassResult = this.runSass();
 			const compiledFiles = nodeSassResult.stats.includedFiles;
@@ -79,6 +83,7 @@ export class ScssCompiler
 			const postProcessed = await this.postProcess(nodeSassResult);
 
 			// write files
+			console.log("write files", this.filePath);
 			await this.writeFiles(postProcessed.css, postProcessed.map.toString());
 
 			return {
@@ -105,6 +110,34 @@ export class ScssCompiler
 				error: e,
 			}
 		}
+	}
+
+	/**
+	 * Removes previous builds
+	 */
+	private async clearPreviousBuilds () : Promise<void>
+	{
+		return new Promise((resolve, reject) =>
+		{
+			glob(
+				this.outPath.replace(".css", "?(.*).css{,.map}"),
+				{
+					dot: true,
+				},
+				(error, files) => {
+					if (error)
+					{
+						reject(error);
+						return;
+					}
+
+					files.forEach(
+						file => removeSync(file)
+					);
+					resolve();
+				}
+			)
+		})
 	}
 
 
@@ -183,6 +216,7 @@ export class ScssCompiler
 			this.dependenciesMap.set(`css/${this.outBasename}`, [
 				`css/${path.relative(this.outDir, filePath)}`
 			]);
+			console.log(this.dependenciesMap);
 		}
 		else
 		{

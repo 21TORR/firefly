@@ -37,15 +37,17 @@ export class DependenciesMap
 		if (!type)
 		{
 			this.dependencies[file] = dependencies;
-			return;
 		}
-
-		if (!this.dependencies[file])
+		else
 		{
-			this.dependencies[file] = {};
+			if (!this.dependencies[file])
+			{
+				this.dependencies[file] = {};
+			}
+
+			this.dependencies[file][type] = dependencies;
 		}
 
-		this.dependencies[file][type] = dependencies;
 		ensureDirSync(this.basePath);
 		writeJSONSync(this.filePath, this.dependencies, {
 			spaces: '\t',
