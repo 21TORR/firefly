@@ -1,3 +1,9 @@
+2.0.1
+=====
+
+*   (bug) Properly write `_dependencies.json` if anything changes.
+
+
 2.0.0
 =====
 
