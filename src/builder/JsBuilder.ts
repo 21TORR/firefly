@@ -137,7 +137,6 @@ export class JsBuilder
 							const isLegacy = "es" !== output.format;
 
 							// clear output directory (as we will rewrite all files)
-							console.log("REMOVE DIR", output.dir);
 							removeSync(output.dir);
 
 							// write output
