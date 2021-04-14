@@ -1,3 +1,9 @@
+2.0.2
+=====
+
+*   (bug) Remove debug output.
+
+
 2.0.1
 =====
 

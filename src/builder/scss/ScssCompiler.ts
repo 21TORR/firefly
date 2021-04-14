@@ -83,7 +83,6 @@ export class ScssCompiler
 			const postProcessed = await this.postProcess(nodeSassResult);
 
 			// write files
-			console.log("write files", this.filePath);
 			await this.writeFiles(postProcessed.css, postProcessed.map.toString());
 
 			return {
@@ -216,7 +215,6 @@ export class ScssCompiler
 			this.dependenciesMap.set(`css/${this.outBasename}`, [
 				`css/${path.relative(this.outDir, filePath)}`
 			]);
-			console.log(this.dependenciesMap);
 		}
 		else
 		{
