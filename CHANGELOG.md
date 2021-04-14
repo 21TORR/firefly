@@ -1,4 +1,4 @@
-2.0.0 (unreleased)
+2.0.0
 =====
 
 *   (improvement) Explicitly pass `cwd` to the sass resolver, so that it works even if Firefly is installed via symlink.
