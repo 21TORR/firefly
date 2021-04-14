@@ -196,7 +196,6 @@ export class Firefly
         return {
             configs,
             jsBase: `${this.outputPath}/js`,
-            hashFilenames: this.hashFileNames,
             dependenciesMap: this.getDependenciesMap(),
         };
     }

@@ -13,7 +13,6 @@ export interface JsBuildConfig
 {
 	configs: RollupOptions[];
 	jsBase: string;
-	hashFilenames: boolean;
 	dependenciesMap: DependenciesMap;
 }
 
