@@ -29,6 +29,7 @@ export class Firefly
     private jsEntries: Entries = {};
     private scssEntries: Entries = {};
     private hashFileNames: boolean = true;
+    private buildLegacy: boolean = true;
     private externals: Entries = {
         "jquery": "window.jQuery",
     };
@@ -143,6 +144,17 @@ export class Firefly
         return this;
     }
 
+    /**
+     * Disables the legacy build
+     *
+     * @api
+     */
+    public disableLegacyBuild () : this
+    {
+        this.buildLegacy = false;
+        return this;
+    }
+
 
     /**
      * Returns the js build config
@@ -156,11 +168,17 @@ export class Firefly
             return null;
         }
 
+        const configs = [
+            this.generateSingleJsBuildConfig(runConfig, true),
+        ];
+
+        if (this.buildLegacy)
+        {
+            configs.push(this.generateSingleJsBuildConfig(runConfig, false));
+        }
+
         return {
-            configs: [
-                this.generateSingleJsBuildConfig(runConfig, true),
-                this.generateSingleJsBuildConfig(runConfig, false),
-            ],
+            configs,
             jsBase: `${this.outputPath}/js`,
             hashFilenames: this.hashFileNames,
             dependenciesMap: this.getDependenciesMap(),
@@ -208,7 +226,6 @@ export class Firefly
                 }),
                 nodeResolve({extensions}),
                 commonjs({
-                    include: 'node_modules/**',
                     sourceMap: true,
                 }),
                 externalGlobals(this.externals),
