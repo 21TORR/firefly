@@ -30,6 +30,7 @@ export class Firefly
     private scssEntries: Entries = {};
     private hashFileNames: boolean = true;
     private buildLegacy: boolean = true;
+    private typeScriptForced: boolean = false;
     private externals: Entries = {
         "jquery": "window.jQuery",
     };
@@ -129,6 +130,20 @@ export class Firefly
     public compilePackages (...packages: string[]) : this
     {
         this.packages = this.packages.concat(packages);
+        return this;
+    }
+
+    /**
+     * Forces TypeScript compilation.
+     * Normally TypeScript is automatically activated, if at least one of your entry files is a TypeScript file.
+     *
+     * However, if only one of the imported files is TypeScript, this won't work. Then you need to enable this option.
+     *
+     * @api
+     */
+    public forceEnableTypeScript () : this
+    {
+        this.typeScriptForced = true;
         return this;
     }
 
@@ -283,6 +298,11 @@ export class Firefly
      */
     private hasTypeScriptEntry () : boolean
     {
+        if (this.typeScriptForced)
+        {
+            return true;
+        }
+
         return Object.values(this.jsEntries)
             .some(filePath => /^\.tsx?$/.test(path.extname(filePath)));
     }
