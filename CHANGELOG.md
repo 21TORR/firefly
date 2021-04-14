@@ -12,6 +12,7 @@
 *   (improvement) Bump dependencies.
 *   (feature) Add option to force-enable TypeScript support.
 *   (feature) Add possibility to import SVG files as string.
+*   (feature) Add file name hashing for CSS files.
 
 
 1.2.12

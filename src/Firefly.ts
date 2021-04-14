@@ -324,6 +324,7 @@ export class Firefly
         return {
             entries: this.scssEntries,
             output: `${this.outputPath}/css`,
+            hashFilenames: this.hashFileNames,
             base: process.cwd(),
             dependenciesMap: this.getDependenciesMap(),
         };

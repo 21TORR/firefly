@@ -43,6 +43,7 @@
 		"eslint-plugin-react-hooks": "^4.2.0",
 		"fs-extra": "^9.1.0",
 		"glob": "^7.1.6",
+		"hasha": "^5.2.2",
 		"kleur": "^4.1.4",
 		"postcss": "^8.2.10",
 		"postcss-csso": "^5.0.1",

@@ -9,6 +9,9 @@ import path from 'path';
 import {ensureDir, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
 import {resolveScssImport} from './resolver';
+import {DependenciesMap} from '../DependenciesMap';
+import hasha from 'hasha';
+import escapeStringRegexp from 'escape-string-regexp';
 
 
 export interface ScssCompilationResult
@@ -25,20 +28,24 @@ export class ScssCompiler
 	private readonly postProcessor: Processor;
 	private readonly basename: string;
 	private readonly outPath: string;
+	private readonly outBasename: string;
 
 	/**
 	 */
 	constructor (
 		private readonly logger: Logger,
+		private readonly dependenciesMap: DependenciesMap,
 		private base: string,
 		private debug: boolean,
 		private outDir: string,
 		name: string,
 		private filePath: string,
+		private readonly hashFilenames: boolean
 	)
 	{
 		this.basename = path.basename(filePath);
-		this.outPath = path.join(this.outDir, `${name}.css`);
+		this.outBasename = `${name}.css`;
+		this.outPath = path.join(this.outDir, this.outBasename);
 
 		const plugins: AcceptedPlugin[] = [
 			autoprefixer({
@@ -157,10 +164,43 @@ export class ScssCompiler
 	 */
 	private async writeFiles (css: string, sourceMap: string) : Promise<unknown>
 	{
+		// create output dir
 		await ensureDir(this.outDir);
+		let filePath;
+
+		if (this.hashFilenames)
+		{
+			// hash filename
+			filePath = this.generatedFilePathWithHash(this.outPath, hasha(css, {algorithm: "sha256"}).substr(0, 10));
+
+			// change URL to source map
+			css = css.replace(
+				`/*# sourceMappingURL=${path.basename(this.outPath)}.map */`,
+				`/*# sourceMappingURL=${path.basename(filePath)}.map */`,
+			);
+
+			// add to dependencies map
+			this.dependenciesMap.set(`css/${this.outBasename}`, [
+				`css/${path.relative(this.outDir, filePath)}`
+			]);
+		}
+		else
+		{
+			filePath = this.outPath;
+		}
+
 		return Promise.all([
-			writeFile(this.outPath, css),
-			writeFile(this.outPath + ".map", sourceMap),
+			writeFile(filePath, css),
+			writeFile(`${filePath}.map`, sourceMap),
 		]);
+	}
+
+	/**
+	 * Modifies the file path to include the hash
+	 */
+	private generatedFilePathWithHash (filePath: string, hash: string) : string
+	{
+		const extension = path.extname(filePath);
+		return filePath.replace(new RegExp(`${escapeStringRegexp(extension)}$`), `.${hash}${extension}`)
 	}
 }
