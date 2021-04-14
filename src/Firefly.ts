@@ -17,15 +17,21 @@ import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
 import json from '@rollup/plugin-json';
 import * as path from 'path';
+import {DependenciesMap} from './builder/DependenciesMap';
+import systemJSLoader from 'rollup-plugin-systemjs-loader';
+import svg from 'rollup-plugin-svg';
 
 type Entries = Record<string, string>;
 
 export class Firefly
 {
+    private dependenciesMap: DependenciesMap;
     private outputPath = "build";
     private jsEntries: Entries = {};
     private scssEntries: Entries = {};
     private hashFileNames: boolean = true;
+    private buildLegacy: boolean = true;
+    private typeScriptForced: boolean = false;
     private externals: Entries = {
         "jquery": "window.jQuery",
     };
@@ -128,6 +134,20 @@ export class Firefly
         return this;
     }
 
+    /**
+     * Forces TypeScript compilation.
+     * Normally TypeScript is automatically activated, if at least one of your entry files is a TypeScript file.
+     *
+     * However, if only one of the imported files is TypeScript, this won't work. Then you need to enable this option.
+     *
+     * @api
+     */
+    public forceEnableTypeScript () : this
+    {
+        this.typeScriptForced = true;
+        return this;
+    }
+
 
     /**
      * Disables chunk hashes in file names
@@ -137,6 +157,17 @@ export class Firefly
     public disableFileNameHashing (): this
     {
         this.hashFileNames = false;
+        return this;
+    }
+
+    /**
+     * Disables the legacy build
+     *
+     * @api
+     */
+    public disableLegacyBuild () : this
+    {
+        this.buildLegacy = false;
         return this;
     }
 
@@ -153,13 +184,19 @@ export class Firefly
             return null;
         }
 
+        const configs = [
+            this.generateSingleJsBuildConfig(runConfig, true),
+        ];
+
+        if (this.buildLegacy)
+        {
+            configs.push(this.generateSingleJsBuildConfig(runConfig, false));
+        }
+
         return {
-            configs: [
-                this.generateSingleJsBuildConfig(runConfig, true),
-                this.generateSingleJsBuildConfig(runConfig, false),
-            ],
+            configs,
             jsBase: `${this.outputPath}/js`,
-            hashFilenames: this.hashFileNames,
+            dependenciesMap: this.getDependenciesMap(),
         };
     }
 
@@ -204,13 +241,15 @@ export class Firefly
                 }),
                 nodeResolve({extensions}),
                 commonjs({
-                    include: 'node_modules/**',
                     sourceMap: true,
                 }),
                 externalGlobals(this.externals),
                 builtins(),
                 nodeGlobals(),
                 json(),
+                svg({
+                    base64: false,
+                }),
                 this.hasTypeScriptEntry() ? typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,
@@ -239,12 +278,18 @@ export class Firefly
                     sourceMaps: true,
                     ...buildBabelConfig(isModern),
                 }),
+                !isModern ? systemJSLoader({
+                    include: [
+                        require.resolve("promise-polyfill/dist/polyfill.min.js"),
+                        require.resolve('systemjs/dist/s.js'),
+                    ],
+                }) : undefined,
             ],
             output: [
                 {
                     ...output,
                     dir: `${this.outputPath}/js/${isModern ? "modern" : "legacy"}`,
-                    format: isModern ? "es" : "iife",
+                    format: isModern ? "es" : "system",
                 },
             ],
         };
@@ -256,6 +301,11 @@ export class Firefly
      */
     private hasTypeScriptEntry () : boolean
     {
+        if (this.typeScriptForced)
+        {
+            return true;
+        }
+
         return Object.values(this.jsEntries)
             .some(filePath => /^\.tsx?$/.test(path.extname(filePath)));
     }
@@ -274,7 +324,33 @@ export class Firefly
         return {
             entries: this.scssEntries,
             output: `${this.outputPath}/css`,
+            hashFilenames: this.hashFileNames,
             base: process.cwd(),
+            dependenciesMap: this.getDependenciesMap(),
         };
+    }
+
+
+    /**
+     * Returns the dependencies map for this compilation
+     */
+    private getDependenciesMap () : DependenciesMap
+    {
+        if (!this.dependenciesMap)
+        {
+            this.dependenciesMap = new DependenciesMap(this.outputPath);
+        }
+
+        return this.dependenciesMap;
+    }
+
+
+    /**
+     * Marks the start for the internal compilation
+     * @internal
+     */
+    public startInternalCompilation () : void
+    {
+        this.getDependenciesMap().reset();
     }
 }

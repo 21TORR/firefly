@@ -1,7 +1,18 @@
-1.2.13 (unreleased)
-======
+2.0.0 (unreleased)
+=====
 
 *   (improvement) Explicitly pass `cwd` to the sass resolver, so that it works even if Firefly is installed via symlink.
+*   (improvement) Use explicit `DependencyMap`, to be able to iteratively update the dependency map.
+*   (bug) Actually write the output files in the JS watcher.
+*   (improvement) load SystemJS + promise polyfill for legacy build via plugin instead of a manual implementation.
+*   (improvement) Clear the output directory when writing watched JS files.
+*   (bc) Changed the storage place of the `_dependencies.json` (it is now in the root of the `output` path).
+*   (bc) Changed the structure and keys in the dependencies map, to also allow SCSS files to be written into the dependencies map.
+*   (feature) Add option to disable the legacy build.
+*   (improvement) Bump dependencies.
+*   (feature) Add option to force-enable TypeScript support.
+*   (feature) Add possibility to import SVG files as string.
+*   (feature) Add file name hashing for CSS files.
 
 
 1.2.12

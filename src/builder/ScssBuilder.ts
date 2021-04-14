@@ -8,13 +8,16 @@ import {lint} from "stylelint";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {formatScssBundleSizes} from './lib/reporter';
 import {remove} from 'fs-extra';
+import {DependenciesMap} from './DependenciesMap';
 
 
 export interface ScssBuildConfig
 {
     entries: Record<string, string>;
     output: string;
+    hashFilenames: boolean;
     base: string;
+    dependenciesMap: DependenciesMap;
 }
 
 
@@ -53,11 +56,13 @@ export class ScssBuilder
                 const filePath = path.join(buildConfig.base, buildConfig.entries[name]);
                 this.compilers[name] = new ScssCompiler(
                     this.logger,
+                    buildConfig.dependenciesMap,
                     buildConfig.base,
                     runConfig.debug,
                     buildConfig.output,
                     name,
                     filePath,
+                    buildConfig.hashFilenames
                 );
             }
         }
