@@ -8,6 +8,7 @@ import {lint} from "stylelint";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {formatScssBundleSizes} from './lib/reporter';
 import {remove} from 'fs-extra';
+import {DependenciesMap} from './DependenciesMap';
 
 
 export interface ScssBuildConfig
@@ -15,6 +16,7 @@ export interface ScssBuildConfig
     entries: Record<string, string>;
     output: string;
     base: string;
+    dependenciesMap: DependenciesMap;
 }
 
 

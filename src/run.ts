@@ -42,6 +42,8 @@ export function runFirefly (config: FireflyTypes.RunConfig) : void
 			);
 		}
 
+		instance.startInternalCompilation();
+
 		const scss = new ScssBuilder(config, instance.generateScssBuildConfig(config));
 		const js = new JsBuilder(config, instance.generateJsBuildConfig(config));
 

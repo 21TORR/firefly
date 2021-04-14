@@ -17,11 +17,13 @@ import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
 import json from '@rollup/plugin-json';
 import * as path from 'path';
+import {DependenciesMap} from './builder/DependenciesMap';
 
 type Entries = Record<string, string>;
 
 export class Firefly
 {
+    private dependenciesMap: DependenciesMap;
     private outputPath = "build";
     private jsEntries: Entries = {};
     private scssEntries: Entries = {};
@@ -160,6 +162,7 @@ export class Firefly
             ],
             jsBase: `${this.outputPath}/js`,
             hashFilenames: this.hashFileNames,
+            dependenciesMap: this.getDependenciesMap(),
         };
     }
 
@@ -275,6 +278,31 @@ export class Firefly
             entries: this.scssEntries,
             output: `${this.outputPath}/css`,
             base: process.cwd(),
+            dependenciesMap: this.getDependenciesMap(),
         };
+    }
+
+
+    /**
+     * Returns the dependencies map for this compilation
+     */
+    private getDependenciesMap () : DependenciesMap
+    {
+        if (!this.dependenciesMap)
+        {
+            this.dependenciesMap = new DependenciesMap(this.outputPath);
+        }
+
+        return this.dependenciesMap;
+    }
+
+
+    /**
+     * Marks the start for the internal compilation
+     * @internal
+     */
+    public startInternalCompilation () : void
+    {
+        this.getDependenciesMap().reset();
     }
 }

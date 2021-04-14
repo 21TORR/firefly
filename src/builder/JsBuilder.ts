@@ -10,12 +10,14 @@ import {blue, yellow} from 'kleur';
 import {readFileSync} from 'fs-extra';
 import {writeFileSync} from 'fs';
 import {formatRollupBundleSizes} from './lib/reporter';
+import {DependenciesMap} from './DependenciesMap';
 
 export interface JsBuildConfig
 {
 	configs: RollupOptions[];
 	jsBase: string;
 	hashFilenames: boolean;
+	dependenciesMap: DependenciesMap;
 }
 
 interface CompileResult
