@@ -114,7 +114,7 @@ export class ScssCompiler
 				outputStyle: 'expanded',
 				sourceMap: true,
 				includePaths: [this.base],
-				importer: resolveScssImport,
+				importer: (url: string, prev: string) => resolveScssImport(this.base, url, prev),
 			});
 		}
 		catch (e)

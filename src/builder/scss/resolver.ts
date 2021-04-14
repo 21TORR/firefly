@@ -2,7 +2,7 @@ import {ImporterReturnType} from 'sass';
 import * as path from 'path';
 import {readFileSync} from 'fs-extra';
 
-export function resolveScssImport (url: string, prev: string): ImporterReturnType
+export function resolveScssImport (cwd: string, url: string, prev: string): ImporterReturnType
 {
 	if ("~" === url[0])
 	{
@@ -15,7 +15,9 @@ export function resolveScssImport (url: string, prev: string): ImporterReturnTyp
 
 			try
 			{
-				const resolvedPath = require.resolve(fullImportPath);
+				const resolvedPath = require.resolve(fullImportPath, {
+					paths: [cwd],
+				});
 
 				if (".scss" !== path.extname(resolvedPath))
 				{
