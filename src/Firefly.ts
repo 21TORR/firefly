@@ -19,6 +19,7 @@ import json from '@rollup/plugin-json';
 import * as path from 'path';
 import {DependenciesMap} from './builder/DependenciesMap';
 import systemJSLoader from 'rollup-plugin-systemjs-loader';
+import svg from 'rollup-plugin-svg';
 
 type Entries = Record<string, string>;
 
@@ -247,6 +248,9 @@ export class Firefly
                 builtins(),
                 nodeGlobals(),
                 json(),
+                svg({
+                    base64: false,
+                }),
                 this.hasTypeScriptEntry() ? typescript({
                     allowSyntheticDefaultImports: true,
                     alwaysStrict: false,

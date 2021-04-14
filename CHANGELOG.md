@@ -11,6 +11,7 @@
 *   (feature) Add option to disable the legacy build.
 *   (improvement) Bump dependencies.
 *   (feature) Add option to force-enable TypeScript support.
+*   (feature) Add possibility to import SVG files as string.
 
 
 1.2.12
