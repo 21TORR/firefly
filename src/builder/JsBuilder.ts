@@ -1,14 +1,11 @@
-import {RollupOptions, rollup, watch, OutputChunk, OutputAsset, RollupOutput, RollupWatcherEvent, InputOption} from "rollup";
+import {RollupOptions, rollup, watch, OutputChunk, OutputAsset, RollupOutput, RollupWatcherEvent, InputOption, RollupWatcher} from "rollup";
 import {FireflyTypes} from "../@types/firefly";
-import {writeJSONSync, ensureDirSync, remove} from "fs-extra";
+import {remove, removeSync} from "fs-extra";
 import * as path from "path";
-import hasha from "hasha";
 import {filterLintFilePaths} from '../lib/array-filter';
 import {ESLint} from "eslint";
 import {Logger} from '../lib/Logger';
-import {blue, yellow} from 'kleur';
-import {readFileSync} from 'fs-extra';
-import {writeFileSync} from 'fs';
+import {blue, yellow, cyan} from 'kleur';
 import {formatRollupBundleSizes} from './lib/reporter';
 import {DependenciesMap} from './DependenciesMap';
 
@@ -39,74 +36,13 @@ function isOutputChunk (output: OutputChunk|OutputAsset): output is OutputChunk
 
 
 /**
- * Writes a base file for modern files
- */
-function writeModernBaseFile (basePath: string, hashFileNames: boolean): string
-{
-	return writeBaseFile(
-		[
-			// Load Promise  polyfill for `.finally()` support
-			require.resolve("promise-polyfill/dist/polyfill.min.js"),
-		],
-		"modern",
-		basePath,
-		hashFileNames,
-	);
-}
-
-
-/**
- * Writes a legacy base vendor file
- */
-function writeLegacyBaseFile (basePath: string, hashFileNames: boolean): string
-{
-	return writeBaseFile(
-		[
-			require.resolve("promise-polyfill/dist/polyfill.min.js"),
-		],
-		"legacy",
-		basePath,
-		hashFileNames,
-	);
-}
-
-
-/**
- * Writes a legacy base vendor file
- */
-function writeBaseFile (files: string[], type: string, basePath: string, hashFileNames: boolean): string
-{
-	const content = files.map(
-		file => readFileSync(file).toString().trim(),
-	)
-		.join("\n");
-
-	const hash = hashFileNames
-		? "." + hasha(content, {algorithm: "sha256"}).substr(0, 10)
-		: "";
-
-	const relativePath = `${type}/_base${hash}.js`;
-	const fullPath = `${basePath}/${relativePath}`;
-
-	ensureDirSync(path.dirname(fullPath));
-	writeFileSync(fullPath, content);
-
-	return relativePath;
-}
-
-
-/**
  * Writes the dependencies file
  */
 function writeDependencies (
-	bundleResults: CompileResult[],
-	basePath: string,
-	legacyBaseFile: string,
-	modernBaseFile: string,
+	dependenciesMap: DependenciesMap,
+	bundleResults: CompileResult[]
 ): void
 {
-	const manifest = {};
-
 	bundleResults.forEach(results =>
 	{
 		results.output.output.forEach(output =>
@@ -117,23 +53,14 @@ function writeDependencies (
 			}
 
 			const type = results.legacy ? "legacy" : "modern";
-			const name = `${output.name}.js`;
 
-			if (!manifest[name])
-			{
-				manifest[name] = {};
-			}
-
-			if (!manifest[name][type])
-			{
-				manifest[name][type] = [
-					results.legacy ? legacyBaseFile : modernBaseFile
-				];
-			}
-
-			manifest[name][type].push(`${type}/${output.fileName}`);
-
-			writeJSONSync(`${basePath}/_dependencies.json`, manifest);
+			dependenciesMap.set(
+				`js/${output.name}.js`,
+				[
+					`js/${type}/${output.fileName}`
+				],
+				type
+			);
 		});
 	});
 }
@@ -188,48 +115,69 @@ export class JsBuilder
 
 		if (this.runConfig.watch)
 		{
-			const watcher = watch(buildConfig.configs);
 			this.logger.log("Start watching all JS bundles");
-
-			watcher.on("event", async event =>
-			{
-				if (event.code === "BUNDLE_START" && isEventForModernBuild(event))
+			const watchers: RollupWatcher[] = buildConfig.configs.map(
+				config =>
 				{
-					const inputs = formatInputFiles(event.input);
-					this.logger.log(`Start building ${inputs}`);
-					this.timers[inputs] = process.hrtime();
-					return;
+					const watcher = watch(config);
+
+					watcher.on("event", async event =>
+					{
+						if (event.code === "BUNDLE_START" && isEventForModernBuild(event))
+						{
+							const inputs = formatInputFiles(event.input);
+							this.logger.log(`Start building ${inputs}`);
+							this.timers[inputs] = process.hrtime();
+							return;
+						}
+
+						if (event.code === "BUNDLE_END")
+						{
+							const output = config.output![0];
+							const isLegacy = "es" !== output.format;
+
+							// clear output directory (as we will rewrite all files)
+							console.log("REMOVE DIR", output.dir);
+							removeSync(output.dir);
+
+							// write output
+							const result = await event.result.write(output);
+							const inputs = formatInputFiles(event.input);
+
+							const bundleResults = [{
+								inputs,
+								output: result,
+								legacy: isLegacy,
+								files: event.result.watchFiles,
+							}];
+
+							await this.onBundleWriteFinished(
+								bundleResults,
+								buildConfig,
+								event.result.watchFiles,
+								cwd
+							);
+
+							this.logger.log(`Finished writing ${cyan(isLegacy ? "legacy" : "modern")} for files ${inputs}`);
+						}
+
+						if ((event as any).result)
+						{
+							(event as any).result.close();
+						}
+					});
+
+					return watcher;
 				}
+			);
 
-				if (event.code === "BUNDLE_END" && isEventForModernBuild(event))
-				{
-					const inputs = formatInputFiles(event.input);
-
-					if (this.timers[inputs])
-					{
-						this.logger.log(`Finished building ${inputs}`, {
-							duration: process.hrtime(this.timers[inputs]),
-						});
-						this.timers[inputs] = undefined;
-					}
-					else
-					{
-						this.logger.log(`Finished building ${inputs}`);
-					}
-
-					if (this.runConfig.debug)
-					{
-						await this.lintFiles(event.result.watchFiles, cwd);
-					}
-				}
-			});
 
 			return new Promise<boolean>((resolve) =>
 			{
 				this.watcherResolve = resolve;
 			})
 				.then(() => {
-					watcher.close();
+					watchers.forEach(watcher => watcher.close());
 					return true;
 				});
 		}
@@ -248,7 +196,6 @@ export class JsBuilder
 
 			const bundle = await rollup(config);
 
-
 			return {
 				inputs,
 				output: await bundle.write(output),
@@ -258,34 +205,44 @@ export class JsBuilder
 		}))
 			.then(async (bundleResults: CompileResult[]) =>
 			{
-				bundleResults.forEach(results => {
-
-					if (!results.legacy)
-					{
-						this.logger.log(`Finished building ${results.inputs}`, {
-							duration: process.hrtime(this.timers[results.inputs]),
-							details: formatRollupBundleSizes(path.join(cwd, buildConfig.jsBase, "modern"), results.output),
-						});
-					}
-				});
-
-				writeDependencies(
+				return this.onBundleWriteFinished(
 					bundleResults,
-					buildConfig.jsBase,
-					writeLegacyBaseFile(buildConfig.jsBase, buildConfig.hashFilenames),
-					writeModernBaseFile(buildConfig.jsBase, buildConfig.hashFilenames)
+					buildConfig,
+					bundleResults.reduce<string[]>((sum, current) => sum.concat(current.files), []),
+					cwd
 				);
-				let isValid = true;
-
-				if (this.runConfig.debug)
-				{
-					const allFiles = bundleResults.reduce<string[]>((sum, current) => sum.concat(current.files), []);
-					isValid = await this.lintFiles(allFiles, cwd);
-				}
-
-				return isValid;
 			});
 	}
+
+
+	/**
+	 * Callback, that reports on the finished bundle write
+	 */
+	private async onBundleWriteFinished (
+		bundleResults: CompileResult[],
+		buildConfig: Readonly<JsBuildConfig>,
+		filesToLint: string[],
+		cwd: string
+	) : Promise<boolean>
+	{
+		bundleResults.forEach(results =>
+		{
+			if (!results.legacy)
+			{
+				this.logger.log(`Finished building ${results.inputs}`, {
+					duration: process.hrtime(this.timers[results.inputs]),
+					details: formatRollupBundleSizes(path.join(cwd, buildConfig.jsBase, "modern"), results.output),
+				});
+			}
+		});
+
+		writeDependencies(buildConfig.dependenciesMap, bundleResults);
+
+		return this.runConfig.debug
+			? await this.lintFiles(filesToLint, cwd)
+			: true;
+	}
+
 
 	/**
 	 * Lints all given files

@@ -18,6 +18,7 @@ import externalGlobals from "rollup-plugin-external-globals";
 import json from '@rollup/plugin-json';
 import * as path from 'path';
 import {DependenciesMap} from './builder/DependenciesMap';
+import systemJSLoader from 'rollup-plugin-systemjs-loader';
 
 type Entries = Record<string, string>;
 
@@ -242,12 +243,18 @@ export class Firefly
                     sourceMaps: true,
                     ...buildBabelConfig(isModern),
                 }),
+                !isModern ? systemJSLoader({
+                    include: [
+                        require.resolve("promise-polyfill/dist/polyfill.min.js"),
+                        require.resolve('systemjs/dist/s.js'),
+                    ],
+                }) : undefined,
             ],
             output: [
                 {
                     ...output,
                     dir: `${this.outputPath}/js/${isModern ? "modern" : "legacy"}`,
-                    format: isModern ? "es" : "iife",
+                    format: isModern ? "es" : "system",
                 },
             ],
         };
