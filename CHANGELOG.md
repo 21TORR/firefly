@@ -1,3 +1,9 @@
+2.0.4
+=====
+
+*   (bug) Fix typo in Rollup size reporter.
+
+
 2.0.3
 =====
 

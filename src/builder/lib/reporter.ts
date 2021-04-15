@@ -135,7 +135,7 @@ export function formatRollupBundleSizes (base: string, output: RollupOutput) : s
 		}
 	});
 
-	return formatBundleSizes(bundled, yellow, 150_000, 300_00);
+	return formatBundleSizes(bundled, yellow, 150_000, 300_000);
 }
 
 
