@@ -31,7 +31,7 @@ program
             watch: true,
             verbose: opts.verbose,
             debug: true,
-            fix: true,
+            fix: false,
         });
     });
 

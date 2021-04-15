@@ -1,3 +1,9 @@
+2.0.3
+=====
+
+*   (improvement) Don't fix in the watcher.
+
+
 2.0.2
 =====
 
