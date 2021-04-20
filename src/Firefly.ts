@@ -18,7 +18,6 @@ import externalGlobals from "rollup-plugin-external-globals";
 import json from '@rollup/plugin-json';
 import * as path from 'path';
 import {DependenciesMapWriter} from './builder/DependenciesMapWriter';
-import systemJSLoader from 'rollup-plugin-systemjs-loader';
 import svg from 'rollup-plugin-svg';
 
 type Entries = Record<string, string>;
@@ -278,18 +277,12 @@ export class Firefly
                     sourceMaps: true,
                     ...buildBabelConfig(isModern),
                 }),
-                !isModern ? systemJSLoader({
-                    include: [
-                        require.resolve("promise-polyfill/dist/polyfill.min.js"),
-                        require.resolve('systemjs/dist/s.js'),
-                    ],
-                }) : undefined,
             ],
             output: [
                 {
                     ...output,
                     dir: `${this.outputPath}/js/${isModern ? "modern" : "legacy"}`,
-                    format: isModern ? "es" : "system",
+                    format: isModern ? "es" : "umd",
                 },
             ],
         };
