@@ -1,9 +1,9 @@
 import {writeJSONSync, ensureDirSync, removeSync} from "fs-extra";
 import {join} from "path";
 
-export class DependenciesMap
+export class DependenciesMapWriter
 {
-	private filePath: string;
+	private readonly filePath: string;
 	private dependencies = {};
 
 	/**

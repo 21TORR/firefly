@@ -17,7 +17,7 @@ import {ScssBuildConfig} from './builder/ScssBuilder';
 import externalGlobals from "rollup-plugin-external-globals";
 import json from '@rollup/plugin-json';
 import * as path from 'path';
-import {DependenciesMap} from './builder/DependenciesMap';
+import {DependenciesMapWriter} from './builder/DependenciesMapWriter';
 import systemJSLoader from 'rollup-plugin-systemjs-loader';
 import svg from 'rollup-plugin-svg';
 
@@ -25,7 +25,7 @@ type Entries = Record<string, string>;
 
 export class Firefly
 {
-    private dependenciesMap: DependenciesMap;
+    private dependenciesMap: DependenciesMapWriter;
     private outputPath = "build";
     private jsEntries: Entries = {};
     private scssEntries: Entries = {};
@@ -334,11 +334,11 @@ export class Firefly
     /**
      * Returns the dependencies map for this compilation
      */
-    private getDependenciesMap () : DependenciesMap
+    private getDependenciesMap () : DependenciesMapWriter
     {
         if (!this.dependenciesMap)
         {
-            this.dependenciesMap = new DependenciesMap(this.outputPath);
+            this.dependenciesMap = new DependenciesMapWriter(this.outputPath);
         }
 
         return this.dependenciesMap;

@@ -9,7 +9,7 @@ import path from 'path';
 import {ensureDir, removeSync, writeFile} from 'fs-extra';
 import csso from "postcss-csso";
 import {resolveScssImport} from './resolver';
-import {DependenciesMap} from '../DependenciesMap';
+import {DependenciesMapWriter} from '../DependenciesMapWriter';
 import hasha from 'hasha';
 import escapeStringRegexp from 'escape-string-regexp';
 import glob from "glob";
@@ -35,7 +35,7 @@ export class ScssCompiler
 	 */
 	constructor (
 		private readonly logger: Logger,
-		private readonly dependenciesMap: DependenciesMap,
+		private readonly dependenciesMap: DependenciesMapWriter,
 		private base: string,
 		private debug: boolean,
 		private outDir: string,

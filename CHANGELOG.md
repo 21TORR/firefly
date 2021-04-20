@@ -1,3 +1,11 @@
+2.1.0
+=====
+
+*   (internal) Rename `DependenciesMap` to `DependenciesMapWriter`.
+*   (feature) Add external `DependenciesMap`.
+*   (feature) Add `includeAssets()`.
+
+
 2.0.4
 =====
 

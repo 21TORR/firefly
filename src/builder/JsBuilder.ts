@@ -7,13 +7,13 @@ import {ESLint} from "eslint";
 import {Logger} from '../lib/Logger';
 import {blue, yellow, cyan} from 'kleur';
 import {formatRollupBundleSizes} from './lib/reporter';
-import {DependenciesMap} from './DependenciesMap';
+import {DependenciesMapWriter} from './DependenciesMapWriter';
 
 export interface JsBuildConfig
 {
 	configs: RollupOptions[];
 	jsBase: string;
-	dependenciesMap: DependenciesMap;
+	dependenciesMap: DependenciesMapWriter;
 }
 
 interface CompileResult
@@ -38,7 +38,7 @@ function isOutputChunk (output: OutputChunk|OutputAsset): output is OutputChunk
  * Writes the dependencies file
  */
 function writeDependencies (
-	dependenciesMap: DependenciesMap,
+	dependenciesMap: DependenciesMapWriter,
 	bundleResults: CompileResult[]
 ): void
 {
