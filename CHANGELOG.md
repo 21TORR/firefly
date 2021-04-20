@@ -1,3 +1,9 @@
+2.0.5
+=====
+
+*   (internal) Rename `DependenciesMap` to `DependenciesMapWriter`.
+
+
 2.0.4
 =====
 
