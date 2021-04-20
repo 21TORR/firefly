@@ -4,6 +4,7 @@
 *   (internal) Rename `DependenciesMap` to `DependenciesMapWriter`.
 *   (feature) Add external `DependenciesMap`.
 *   (feature) Add `includeAssets()`.
+*   (bug) Bundle as `umd` instead of SystemJS for IE11.
 
 
 2.0.4
