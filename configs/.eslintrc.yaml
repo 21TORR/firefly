@@ -34,6 +34,9 @@ globals:
     require: false
     __DEBUG__: true
 
+ignorePatterns:
+    - '*.svg'
+
 extends:
     - 'eslint:recommended'
     - 'plugin:@typescript-eslint/eslint-recommended'

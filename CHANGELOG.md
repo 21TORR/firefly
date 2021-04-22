@@ -1,3 +1,9 @@
+2.1.1 (unreleased)
+=====
+
+*   (improvement) Ignore `.svg` files in ESlint.
+
+
 2.1.0
 =====
 
