@@ -20,6 +20,7 @@ import * as path from 'path';
 import {DependenciesMapWriter} from './builder/DependenciesMapWriter';
 import svg from 'rollup-plugin-svg';
 
+export const ALLOWED_JS_FILE_TYPES = [".tsx", ".ts", ".mjsx", ".mjs", ".jsx", ".js", ".json"];
 type Entries = Record<string, string>;
 
 export class Firefly
@@ -223,8 +224,6 @@ export class Firefly
             output.plugins!.push(terser());
         }
 
-        const extensions = [".tsx", ".ts", ".mjsx", ".mjs", ".jsx", ".js", ".json"];
-
         return {
             input: this.jsEntries,
             external: [
@@ -238,7 +237,7 @@ export class Firefly
                         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     },
                 }),
-                nodeResolve({extensions}),
+                nodeResolve({extensions: ALLOWED_JS_FILE_TYPES}),
                 commonjs({
                     sourceMap: true,
                 }),
@@ -271,7 +270,7 @@ export class Firefly
                     typescript: require("typescript"),
                 }) : undefined,
                 babel({
-                    extensions,
+                    extensions: ALLOWED_JS_FILE_TYPES,
                     exclude: getExcludePattern(this.packages),
                     babelHelpers: 'bundled',
                     sourceMaps: true,
