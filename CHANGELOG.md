@@ -1,3 +1,9 @@
+2.1.2
+=====
+
+*   (improvement) Only ever lint JS/TS files.
+
+
 2.1.1
 =====
 
