@@ -8,6 +8,7 @@ import {Logger} from '../lib/Logger';
 import {blue, yellow, cyan} from 'kleur';
 import {formatRollupBundleSizes} from './lib/reporter';
 import {DependenciesMapWriter} from './DependenciesMapWriter';
+import {ALLOWED_JS_FILE_TYPES} from '../Firefly';
 
 export interface JsBuildConfig
 {
@@ -249,7 +250,7 @@ export class JsBuilder
 	{
 		const filesToLint = filterLintFilePaths(
 			filePaths,
-			(filePath) => filePath.startsWith(cwd)
+			(filePath) => filePath.startsWith(cwd) && ALLOWED_JS_FILE_TYPES.includes(path.extname(filePath))
 		);
 
 		if (!filesToLint.length)

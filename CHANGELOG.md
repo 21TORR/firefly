@@ -1,7 +1,7 @@
 2.1.1
 =====
 
-*   (improvement) Ignore `.svg` files in ESlint.
+*   (improvement) Only lint actual JS files in ESlint.
 
 
 2.1.0
