@@ -22,4 +22,4 @@ jobs:
             -   run: pnpm test
 
             -   name: Prettify package.json
-                run: pnpx prettier-package-json --use-tabs --list-different
+                run: ./node_modules/.bin/prettier-package-json --use-tabs --list-different
