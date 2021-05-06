@@ -62,7 +62,8 @@
 		"typescript": "^4.2.4"
 	},
 	"peerDependencies": {
-		"core-js": "^3.10.1"
+		"@babel/core": "^7.13",
+		"core-js": "^3.10"
 	},
 	"devDependencies": {
 		"@21torr/atlantis": "^0.6.0",

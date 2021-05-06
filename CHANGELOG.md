@@ -2,6 +2,7 @@
 =====
 
 *   (improvement) Only ever lint JS/TS files.
+*   (improvement) Add explicit `peerDependency` to `@babel/core`.
 
 
 2.1.1
