@@ -226,6 +226,7 @@ export class Firefly
 
         return {
             input: this.jsEntries,
+            preserveEntrySignatures: false,
             external: [
                 "jquery",
             ],

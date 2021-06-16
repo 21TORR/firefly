@@ -1,3 +1,9 @@
+2.1.3
+=====
+
+* (improvement) Don't preserve entry chunks in Rollup.
+
+
 2.1.2
 =====
 
