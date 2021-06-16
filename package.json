@@ -15,8 +15,8 @@
 	"scripts": {
 		"build": "tsc --noEmitOnError --noErrorTruncation --listEmittedFiles --pretty --noUnusedLocals && chmod +x bin/cli.js",
 		"dev": "tsc --noEmitOnError --noErrorTruncation --listEmittedFiles --pretty --watch",
-		"prepublishOnly": "npm run build",
-		"test": "npm run build && ava -v"
+		"prepublishOnly": "pnpm run build",
+		"test": "pnpm run build && ava -v"
 	},
 	"dependencies": {
 		"@babel/plugin-proposal-class-properties": "^7.13.0",
