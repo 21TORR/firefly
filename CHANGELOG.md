@@ -2,6 +2,7 @@
 =====
 
 *   (improvement) Don't lint `.json` files with ESLint
+*   (improvement) Fix babel warning.
 
 
 2.1.3
