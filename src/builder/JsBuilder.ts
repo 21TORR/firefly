@@ -25,6 +25,8 @@ interface CompileResult
 	files: string[];
 }
 
+const FILE_EXTENSIONS_TO_LINT = ALLOWED_JS_FILE_TYPES.filter(extension => ".json" !== extension);
+
 
 /**
  * Determines whether the given output result is a chunk
@@ -250,7 +252,7 @@ export class JsBuilder
 	{
 		const filesToLint = filterLintFilePaths(
 			filePaths,
-			(filePath) => filePath.startsWith(cwd) && ALLOWED_JS_FILE_TYPES.includes(path.extname(filePath))
+			(filePath) => filePath.startsWith(cwd) && FILE_EXTENSIONS_TO_LINT.includes(path.extname(filePath))
 		);
 
 		if (!filesToLint.length)
