@@ -1,7 +1,13 @@
+2.1.4
+=====
+
+*   (improvement) Don't lint `.json` files with ESLint
+
+
 2.1.3
 =====
 
-* (improvement) Don't preserve entry chunks in Rollup.
+*   (improvement) Don't preserve entry chunks in Rollup.
 
 
 2.1.2
