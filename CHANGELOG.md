@@ -1,3 +1,9 @@
+2.1.5
+=====
+
+*   (improvement) Fix babel warning.
+
+
 2.1.4
 =====
 

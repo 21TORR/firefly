@@ -29,7 +29,8 @@ export function buildBabelConfig (isModern: boolean) : Pick<RollupBabelInputPlug
 			// set with loose: true, as the compilation is pretty big otherwise
 			// https://babeljs.io/docs/plugins/transform-class-properties/
 			[require("@babel/plugin-proposal-class-properties"), {loose: true}],
-			[require("@babel/plugin-proposal-private-methods"), { "loose": true }]
+			[require("@babel/plugin-proposal-private-methods"), { "loose": true }],
+			[require("@babel/plugin-proposal-private-property-in-object"), { "loose": true }],
 		],
 	};
 }
