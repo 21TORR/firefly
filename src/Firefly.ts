@@ -19,6 +19,7 @@ import json from '@rollup/plugin-json';
 import * as path from 'path';
 import {DependenciesMapWriter} from './builder/DependenciesMapWriter';
 import svg from 'rollup-plugin-svg';
+import alias, {Alias} from '@rollup/plugin-alias';
 
 export const ALLOWED_JS_FILE_TYPES = [".tsx", ".ts", ".mjsx", ".mjs", ".jsx", ".js", ".json"];
 type Entries = Record<string, string>;
@@ -38,6 +39,7 @@ export class Firefly
     private packages: string[] = [
         "@21torr",
     ];
+    private aliases: Alias[] = [];
 
 
     /**
@@ -171,6 +173,21 @@ export class Firefly
         return this;
     }
 
+    /**
+     * Registers a resolve alias
+     *
+     * @api
+     */
+    public alias (find: string | RegExp, replacement: string) : this
+    {
+        this.aliases.push({
+            find,
+            replacement,
+        });
+
+        return this;
+    }
+
 
     /**
      * Returns the js build config
@@ -238,6 +255,11 @@ export class Firefly
                         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     },
                 }),
+                this.aliases.length > 0
+                    ? alias({
+                        entries: this.aliases,
+                    })
+                    : undefined,
                 nodeResolve({extensions: ALLOWED_JS_FILE_TYPES}),
                 commonjs({
                     sourceMap: true,

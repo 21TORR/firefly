@@ -1,3 +1,9 @@
+2.2.0
+=====
+
+* (feature) Add support for import aliasing.
+
+
 2.1.5
 =====
 
