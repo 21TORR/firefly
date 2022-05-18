@@ -1,4 +1,4 @@
-import sass, {Result} from "sass";
+import sass, {LegacyResult} from "sass";
 import postcss, {AcceptedPlugin, Result as PostCSSResult} from "postcss";
 import autoprefixer from "autoprefixer";
 import postCssReporter from "postcss-reporter";
@@ -143,7 +143,7 @@ export class ScssCompiler
 	/**
 	 * Runs node sass on the file
 	 */
-	private runSass () : Result
+	private runSass () : LegacyResult
 	{
 		try
 		{
@@ -169,7 +169,7 @@ export class ScssCompiler
 	/**
 	 * Post processes the node-sass compiled CSS
 	 */
-	private async postProcess (css: Result) : Promise<PostCSSResult>
+	private async postProcess (css: LegacyResult) : Promise<PostCSSResult>
 	{
 		try
 		{

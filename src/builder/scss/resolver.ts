@@ -1,8 +1,8 @@
-import {ImporterReturnType} from 'sass';
+import {LegacyImporterResult} from 'sass';
 import * as path from 'path';
 import {readFileSync} from 'fs-extra';
 
-export function resolveScssImport (cwd: string, url: string, prev: string): ImporterReturnType
+export function resolveScssImport (cwd: string, url: string, prev: string): LegacyImporterResult
 {
 	if ("~" === url[0])
 	{
