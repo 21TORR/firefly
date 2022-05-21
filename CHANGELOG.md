@@ -1,3 +1,9 @@
+2.2.2
+=====
+
+* (bug) Don't lint SCSS when no debug is set.
+
+
 2.2.1
 =====
 

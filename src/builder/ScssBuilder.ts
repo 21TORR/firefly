@@ -87,7 +87,9 @@ export class ScssBuilder
         const allIncludedFiles = this.fetchAllIncludedFiles();
 
         // then linting all
-        const hasLintErrors = await this.lintFiles(allIncludedFiles);
+        const hasLintErrors = this.runConfig.debug
+            ? await this.lintFiles(allIncludedFiles)
+            : false;
 
         if (this.runConfig.watch)
         {
