@@ -1,3 +1,9 @@
+2.2.1
+=====
+
+* (improvement) Enable ES2017 in TypeScript.
+
+
 2.2.0
 =====
 
